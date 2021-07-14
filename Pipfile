@@ -12,6 +12,3 @@ adi-reader = "*"
 beartype = "*"
 pytest = "*"
 numpy = "*"
-
-[requires]
-python_version = "3.8.5"
