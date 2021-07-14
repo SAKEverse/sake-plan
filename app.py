@@ -15,6 +15,14 @@ app = dash.Dash(__name__ , external_stylesheets=['https://codepen.io/chriddyp/pe
 app.layout = html.Div(id = 'page-content', children=[
 
 
+    # Generate button
+    html.Div(   html.Button('Generate', id='generate-button', n_clicks=0,
+                style = {'color': 'white','background-color': '#4CAF50'}),
+                style = {'display' : 'table-cell', 'font-size': '13px'} 
+                ),
+
+
+
 ])
 
 
