@@ -12,6 +12,7 @@ adi-reader = "*"
 beartype = "*"
 pytest = "*"
 numpy = "*"
+dash-daq = "*"
 
 [requires]
 python_version = "*"
