@@ -5,11 +5,11 @@ Created on Tue Jul 13 13:31:17 2021
 @author: panton01
 """
 
+### ------------------------ IMPORTS -------------------------------------- ###
 from beartype import beartype
 import pandas as pd
-import numpy as np
 import adi
-
+### ------------------------------------------------------------------------###
 
 class AdiParse:
     """
@@ -33,6 +33,7 @@ class AdiParse:
         # pass to object properties
         self.file_path = file_path
     
+    
     def read_labchart_file(self):
         """
         Creates read object for labchart file and passes to self
@@ -45,6 +46,7 @@ class AdiParse:
         
         # return labchart read object
         return adi.read_file(self.file_path)
+    
     
     def get_channel_names(self):
         """
@@ -68,6 +70,7 @@ class AdiParse:
             ch_info.append([adi_obj.channels[ch].name, ch])
         
         return pd.DataFrame(ch_info, columns = {'channel_id', 'channel_name'}) # return dict as pd.DataFrame
+    
     
     def get_unique_conditions(self):
         """
@@ -115,7 +118,6 @@ class AdiParse:
         
         return df, unique_groups
             
-
           
     @beartype
     def filter_names(self, filters:str):
