@@ -7,6 +7,7 @@ Created on Tue Jul 13 13:31:17 2021
 
 ### ------------------------ IMPORTS -------------------------------------- ###
 from beartype import beartype
+import numpy as np
 import pandas as pd
 import adi
 ### ------------------------------------------------------------------------###
@@ -58,18 +59,23 @@ class AdiParse:
 
         """
         
-        ch_info = [] # create list to store channel names 
-        
         # read labchart file
         adi_obj = self.read_labchart_file()
+
+        # define dataframe columns
+        cols = {'channel_id', 'channel_name'}
+
+        # create empty dataframe
+        df = pd.DataFrame(data = np.zeros((adi_obj.n_channels, len(cols))), columns = cols, dtype = 'string')
         
         # iterate over channels and get names
         for ch in range(adi_obj.n_channels):
             
             # append channel info to dictionary
-            ch_info.append([ch, adi_obj.channels[ch].name])
+            df.at[ch, 'channel_id'] = str(ch)
+            df.at[ch, 'channel_name'] = adi_obj.channels[ch].name
         
-        return pd.DataFrame(ch_info, columns = {'channel_id', 'channel_name'}) # return dict as pd.DataFrame
+        return df
     
     
     def get_unique_conditions(self):
