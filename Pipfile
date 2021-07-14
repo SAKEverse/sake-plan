@@ -8,11 +8,10 @@ verify_ssl = true
 [packages]
 dash = "*"
 pandas = "*"
-adi-reader = "*"
 beartype = "*"
 pytest = "*"
 numpy = "*"
 dash-daq = "*"
 
 [requires]
-python_version = "*"
+python_version = "3.8"
