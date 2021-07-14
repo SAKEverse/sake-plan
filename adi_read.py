@@ -67,7 +67,7 @@ class AdiParse:
         for ch in range(adi_obj.n_channels):
             
             # append channel info to dictionary
-            ch_info.append([adi_obj.channels[ch].name, ch])
+            ch_info.append([ch, adi_obj.channels[ch].name])
         
         return pd.DataFrame(ch_info, columns = {'channel_id', 'channel_name'}) # return dict as pd.DataFrame
     
@@ -149,6 +149,8 @@ if __name__ == '__main__':
     adi_read = AdiParse(r'Z:\Pantelis\example_ch_names.adicht')
     
     df, unique_groups = adi_read.get_unique_conditions()
+
+    df.to_csv('sankey_data.csv')
     #
     # idx = adi_read.filter_names('fc')
       
