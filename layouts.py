@@ -63,8 +63,7 @@ layout_file =  html.Div(id = 'layout_file_name', children=[
 layout_channel =  html.Div(id = 'layout_file_name', children=[
 
     # 1- Example
-    html.Div(id='example', 
-        children = ['Channel Layout']
+    html.Div(id='tree_plot_div'
         ),
    
 ]) # end of this layout
