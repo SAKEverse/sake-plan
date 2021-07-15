@@ -8,15 +8,8 @@ Created on Wed Jul 14 15:24:34 2021
 import pandas as pd
 import plotly.graph_objects as go
 import plotly
-import seaborn as sns
-import pdb
 import numpy as np
 import itertools
-
-
-example_path=r"C:\Users\gweiss01\Documents\GitHub\SAKE\example_data\sankey_data.csv"
-data=pd.read_csv(example_path,index_col=0)
-
 
 def drawSankey(data):
     group_tree={col:{unique:len(data[col][data[col]==unique]) for unique in data[col].unique()} for col in data}
@@ -42,7 +35,7 @@ def drawSankey(data):
         
     source=[item for sublist in source for item in sublist]
     custom=np.array(value)
-    colors=["" if value>=1 else "lightgrey" for value in custom]
+    colors=["rgb(250,250,250)" if value>=1 else "lightgrey" for value in custom]
     
 
     fig = go.Figure(data=[go.Sankey(
@@ -51,23 +44,27 @@ def drawSankey(data):
         node = dict(
           pad = 50,
           thickness = 20,
-          line = dict(color = "black", width = 1),
+          line = dict(color = "black", width = 3),
           label = labels,
           hovertemplate='Mice: %{value}<extra></extra>',
-           color = "darkblue",
+          color = "black",
         ),
         link = dict(
+          line = dict(color = "black", width = 3),
           source = source, # indices correspond to labels, eg A1, A2, A1, B1, ...
           target = target,
           value = value,
           customdata=custom,
           hovertemplate=' %{source.label}->%{target.label} Mice: %{customdata}<extra></extra>',
-          # color=colors
+          color=colors
       ))])
     
-    fig.update_layout(title_text="Basic Sankey Diagram", font_size=10)
+    fig.update_layout(title_text="Basic Sankey Diagram", font_color="Red")
     plotly.offline.plot(fig)
     fig.write_image(r"C:\Users\gweiss01\Desktop\saketest.svg")
     return fig
 
-drawSankey(data)
+if __name__ == "__main__":
+    example_path=r"C:\Users\gweiss01\Documents\GitHub\SAKE\example_data\sankey_data.csv"
+    data=pd.read_csv(example_path,index_col=0)    
+    drawSankey(data)
