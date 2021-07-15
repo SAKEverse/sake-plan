@@ -1,10 +1,12 @@
 
 ### ---------------------------- Imports ---------------------------- ###
 import os
+import pandas as pd
 import dash, dash_table
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
+from flask import session
 
 
 # User Defined #
@@ -17,7 +19,7 @@ from adi_read import AdiParse
 
 # init dash app with css style sheets
 app = dash.Dash(__name__ , external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'] )
-
+app.server.secret_key = os.urandom(24)
 
 # Define main layout
 app.layout = html.Div(children = [
@@ -28,14 +30,38 @@ app.layout = html.Div(children = [
     html.Div(id='selected_layout'),
 ])
 
-def create_channel_divs(ch_num):
-    return html.Div(
-                dcc.Input(
-                id='input_{}'.format(ch_num),
-                type='text',
-                placeholder='Channel {}'.format(ch_num),
-                ), style={'padding': '0px 10px'})
 
+def create_channel_table(input_list):
+    # create dataframe
+    df = pd.DataFrame(data = [str(x) for x in input_list], 
+    columns ={'channel_id'})
+
+    # get columns in right format
+    cols = [] # create dashtable column names
+    for x in df.columns :
+        temp_dict = {'name':x,'id':x}
+        # append to list    
+        cols.append(temp_dict)
+
+    # create datatable
+    table = dash_table.DataTable(id = 'channel_table',
+                editable = True,
+                columns = cols,
+                data = df.to_dict('records'),
+                style_cell={
+                        'color': 'black',
+                        'textAlign': 'center',
+                        'font-family':'arial',
+                        'font-size': '100%',
+                        },
+                    style_header={
+                        'fontWeight': 'bold',
+                        'color': 'black',
+                        'textAlign': 'center',
+                        'backgroundColor': 'rgb(230, 230, 230)',
+                    },
+                )
+    return table
 
 # get layout depending on grouping selection
 @app.callback( 
@@ -55,19 +81,21 @@ def get_layout(dropdown_value):
     [Input('unique_channel_number', 'value')],
 )
 def generate_channel_fields(channel_numbers):
-    divs=[] # create list with divs
-    for ch_num in range(channel_numbers):
-        divs.append(create_channel_divs(ch_num))
-    return divs
 
-# Generate fields for unique channels
+    # get table entries
+    session.update({'unique_channels':['channel_' + str(x) for x in range(channel_numbers)]})
+          
+    return create_channel_table(session['unique_channels'])
+
+# Get data from table
 @app.callback( 
     Output('channel_inputs', 'children'),
-    [Input('input_1', 'value'),
-    Input('input_2', 'value')],
+    [Input('channel_table', 'data')],
 )
-def get_channels(ch_input):
-    return ch_input
+def get_channels(data):
+    session.update({'unique_channels':[x['channel_id'] for x in data]})
+
+    # return create_channel_table(session['unique_channels'])
 
 # Retrieve path and plot tree diagram
 @app.callback(
