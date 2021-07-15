@@ -1,6 +1,6 @@
 import dash_core_components as dcc
 import dash_html_components as html
-
+import dash_daq as daq
 
 # Always present
 layout_common =  html.Div(id = 'layout_channel', children=[
@@ -33,39 +33,38 @@ layout_common =  html.Div(id = 'layout_channel', children=[
 
 
 # If files are grouped by channel name
-layout_channel =  html.Div(id = 'layout_file_name', children=[
+layout_file =  html.Div(id = 'layout_file_name', children=[
 
     # 1- Unique Channels
-    html.Div(id='data_path_main_div', 
+    html.Div(id='unique_channels_div', 
         children = [ 
-            dcc.Slider(
-            id='channel_slider',
-            min=1,
-            max=20,
-            step=1,
-            value=12,
+
+        # unique channel number     
+        daq.NumericInput(
+            id='unique_channel_number',
+            value=3
         ),
+        html.Div(id = 'unique_channel_label_container', children =[
+        html.Div(id= 'unique_channel_label', children = 'Unique Channels'),
+        ]),
+        ]),
 
-        html.Div(id='slider_label'),
-    # Need onload script: $('#slider-wrapper .rc-slider-handle').appendChild($('#output-container-range-slider'));
+    # 3- Unique channel field
+    html.Div(id='unique_channels_inputs'),
 
-    ]),
 
-    # 2- Generate plot and table button
-    html.Div( id='generate_div', children =[
-        html.Button('Generate Channels', id='generate_button', n_clicks=0,   
-        ),
-    ]),
+    # 4- Unique channel field
+    html.Div(id='channel_inputs'),
 
 ]) # end of this layout
 
 
 # If files are grouped by file name
-layout_file =  html.Div(id = 'layout_file_name', children=[
+layout_channel =  html.Div(id = 'layout_file_name', children=[
 
     # 1- Example
     html.Div(id='example', 
-        children = ['File Layout']
+        children = ['Channel Layout']
         ),
    
 ]) # end of this layout

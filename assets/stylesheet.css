@@ -16,8 +16,17 @@
     background-color: black
 }
 
-#channel_slider {
+#unique_channel_label_container {
+    display: table-cell;
     padding: 5px;
-    width: 300px;
+}
+#unique_channel_label {
+    color: white;
+    padding: 5px;
+    background-color: rgba(0, 0, 0);
+    font-weight: bold;
   }
 
+#unique_channel_number {
+    display: table-cell;
+}

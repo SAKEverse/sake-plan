@@ -28,6 +28,14 @@ app.layout = html.Div(children = [
     html.Div(id='selected_layout'),
 ])
 
+def create_channel_divs(ch_num):
+    return html.Div(
+                dcc.Input(
+                id='input_{}'.format(ch_num),
+                type='text',
+                placeholder='Channel {}'.format(ch_num),
+                ), style={'padding': '0px 10px'})
+
 
 # get layout depending on grouping selection
 @app.callback( 
@@ -40,14 +48,26 @@ def get_layout(dropdown_value):
     elif dropdown_value == 'file_name':
         return layout_file
 
-# show range slider value
-@app.callback( 
-    Output('slider_label', 'children'),
-    [Input('channel_slider', 'value')],
-)
-def generate_channel_fields(slider_value):
-    return str(slider_value)
 
+# Generate fields for unique channels
+@app.callback( 
+    Output('unique_channels_inputs', 'children'),
+    [Input('unique_channel_number', 'value')],
+)
+def generate_channel_fields(channel_numbers):
+    divs=[] # create list with divs
+    for ch_num in range(channel_numbers):
+        divs.append(create_channel_divs(ch_num))
+    return divs
+
+# Generate fields for unique channels
+@app.callback( 
+    Output('channel_inputs', 'children'),
+    [Input('input_1', 'value'),
+    Input('input_2', 'value')],
+)
+def get_channels(ch_input):
+    return ch_input
 
 # Retrieve path and plot tree diagram
 @app.callback(
