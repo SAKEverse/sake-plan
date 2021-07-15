@@ -30,3 +30,9 @@
 #unique_channel_number {
     display: table-cell;
 }
+
+#channel_table{
+    width: 200px;
+    font-size: 16px;
+    text-align: center;
+}
