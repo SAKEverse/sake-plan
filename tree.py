@@ -39,7 +39,7 @@ def drawSankey(data):
     
 
     fig = go.Figure(data=[go.Sankey(
-        textfont = plotly.graph_objects.sankey.Textfont(size=18, color='black'),
+        textfont = plotly.graph_objects.sankey.Textfont(size=18, color='black',family='Droid Serif'),
         arrangement='perpendicular',
         node = dict(
           pad = 20,
@@ -63,5 +63,6 @@ def drawSankey(data):
 
 if __name__ == '__main__':
     example_path=r'C:\Users\gweiss01\Documents\GitHub\SAKE\example_data\sankey_data.csv'
-    data=pd.read_csv(example_path,index_col=0)    
-    drawSankey(data)
+    data=pd.read_csv(example_path,index_col=0)
+    fig = drawSankey(data)
+    plotly.offline.plot(fig)
