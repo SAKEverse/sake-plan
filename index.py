@@ -13,6 +13,7 @@ from flask import session
 from app import app
 from layouts import layout_common, layout_channel, layout_file
 from adi_read import AdiParse
+from tree import drawSankey
 # import callbacks
 ### ----------------------------------------------------------------- ###
 
@@ -99,7 +100,8 @@ def get_channels(data):
 
 # Retrieve path and plot tree diagram
 @app.callback(
-    Output('out_all_types', 'children'),
+    [Output('out_all_types', 'children'),
+     Output('tree_plot_div', 'children')],
     [Input('generate_button', 'n_clicks')],
     [State('data_path_input', 'value')],
 )
@@ -114,12 +116,12 @@ def update_output(n_clicks, folder_path):
         # get grouped dataframe
         df, unique_groups = adi_read.get_unique_conditions()
 
-        # Get sankey plot
-        # df.to_csv('sankey_data.csv')
+        # Get sankey plot as dcc graph
+        graph = dcc.Graph(id = 'tree_structure', figure =  drawSankey(df))
 
     except Exception as err:
         return 'Got ' + str(folder_path) + ': ' + str(err)
-    return str(folder_path)
+    return str(folder_path), graph
 
 
 if __name__ == '__main__':
