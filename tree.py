@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
+'''
 Created on Wed Jul 14 15:24:34 2021
 
 @author: gweiss01
-"""
+'''
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -19,7 +19,7 @@ def drawSankey(data):
     value=[(data.iloc[:,:len(combo)]==combo).all(axis=1).sum() for combo in all_combo]  
     
     
-    labels=["Total Subjects"]
+    labels=['Total']
     source=[]
     target=[]
     multiplier=1 #number of repeats due to previous groups
@@ -35,22 +35,22 @@ def drawSankey(data):
         
     source=[item for sublist in source for item in sublist]
     custom=np.array(value)
-    colors=["rgb(250,250,250)" if value>=1 else "lightgrey" for value in custom]
+    colors=['rgb(250,250,250)' if value>=1 else 'lightgrey' for value in custom]
     
 
     fig = go.Figure(data=[go.Sankey(
-        textfont = plotly.graph_objects.sankey.Textfont(size=20),
-        arrangement="perpendicular",
+        textfont = plotly.graph_objects.sankey.Textfont(size=18, color='black',font_family='Courier New'),
+        arrangement='perpendicular',
         node = dict(
-          pad = 50,
-          thickness = 20,
-          line = dict(color = "black", width = 3),
+          pad = 20,
+          thickness = 10,
+          line = dict(color = 'black', width = 3),
           label = labels,
           hovertemplate='Mice: %{value}<extra></extra>',
-          color = "black",
+          color = 'rgb(190,45,45)',
         ),
         link = dict(
-          line = dict(color = "black", width = 3),
+          line = dict(color = 'black', width = 3),
           source = source, # indices correspond to labels, eg A1, A2, A1, B1, ...
           target = target,
           value = value,
@@ -58,13 +58,10 @@ def drawSankey(data):
           hovertemplate=' %{source.label}->%{target.label} Mice: %{customdata}<extra></extra>',
           color=colors
       ))])
-    
-    fig.update_layout(title_text="Basic Sankey Diagram", font_color="Red")
-    plotly.offline.plot(fig)
-    fig.write_image(r"C:\Users\gweiss01\Desktop\saketest.svg")
+
     return fig
 
-if __name__ == "__main__":
-    example_path=r"C:\Users\gweiss01\Documents\GitHub\SAKE\example_data\sankey_data.csv"
+if __name__ == '__main__':
+    example_path=r'C:\Users\gweiss01\Documents\GitHub\SAKE\example_data\sankey_data.csv'
     data=pd.read_csv(example_path,index_col=0)    
     drawSankey(data)
