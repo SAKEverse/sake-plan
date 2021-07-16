@@ -1,6 +1,8 @@
 
 ### ---------------------------- Imports ---------------------------- ###
 import os
+import shutil
+import numpy as np
 import pandas as pd
 import dash, dash_table
 import dash_core_components as dcc
@@ -11,8 +13,9 @@ from flask import session
 
 # User Defined #
 from app import app
-from layouts import layout_common, layout_channel, layout_file
+from layouts import layout1
 from adi_read import AdiParse
+from create_user_table import dashtable
 from tree import drawSankey
 # import callbacks
 ### ----------------------------------------------------------------- ###
@@ -25,70 +28,36 @@ app.server.secret_key = os.urandom(24)
 # Define main layout
 app.layout = html.Div(children = [
     
-    html.Div(children = layout_common),
+    html.Div(children = layout1),
     
-    # Callback layout
-    html.Div(id='selected_layout'),
 ])
 
 
-def create_channel_table(input_list):
-    # create dataframe
-    df = pd.DataFrame(data = [str(x) for x in input_list], 
-    columns ={'channel_id'})
+### ---------- Update Colony Table--------- ###
+@app.callback(
+    [Output('user_table', "columns"), 
+    Output('user_table', 'data'),
+    Output('user_table', 'row_deletable'),
+    Output('user_table', 'dropdown')
+    ],
 
-    # get columns in right format
-    cols = [] # create dashtable column names
-    for x in df.columns :
-        temp_dict = {'name':x,'id':x}
-        # append to list    
-        cols.append(temp_dict)
+    [Input('add_row_button', 'n_clicks')],
+    )
+def colony_update( n_clicks):
 
-    # create datatable
-    table = dash_table.DataTable(id = 'channel_table',
-                editable = True,
-                columns = cols,
-                data = df.to_dict('records'),
-                style_cell={
-                        'color': 'black',
-                        'textAlign': 'center',
-                        'font-family':'arial',
-                        'font-size': '100%',
-                        },
-                    style_header={
-                        'fontWeight': 'bold',
-                        'color': 'black',
-                        'textAlign': 'center',
-                        'backgroundColor': 'rgb(230, 230, 230)',
-                    },
-                )
-    return table
+    # get data in dash table format
+    dash_cols, df, drop_dict = dashtable(pd.read_csv(temp_user_table)) # get dashtable data
 
-# get layout depending on grouping selection
-@app.callback( 
-    Output('selected_layout', 'children'),
-    [Input('main_dropdown', 'value')],
-)
-def get_layout(dropdown_value):
-    if dropdown_value == 'channel_name':
-        return layout_channel
-    elif dropdown_value == 'file_name':
-        return layout_file
+    if n_clicks > 0: # Add rows when button is clicked
+        a = np.empty([1, len(df.columns)]) # create empty numpy array
+        a[:] = np.nan # convert all to nans
+        append_df = pd.DataFrame(a, columns = df.columns) # create dataframe
+        df = df.append(append_df, ignore_index=True) # append dataframe
+
+    return dash_cols, df.to_dict('records'), True, drop_dict
 
 
-# Generate fields for unique channels
-@app.callback( 
-    Output('unique_channels_inputs', 'children'),
-    [Input('unique_channel_number', 'value')],
-)
-def generate_channel_fields(channel_numbers):
-
-    # get table entries
-    session.update({'unique_channels':['channel_' + str(x) for x in range(channel_numbers)]})
-          
-    return create_channel_table(session['unique_channels'])
-
-# Get data from table
+# Get data from channel table
 @app.callback( 
     Output('channel_inputs', 'children'),
     [Input('channel_table', 'data')],
@@ -125,6 +94,15 @@ def update_output(n_clicks, folder_path):
 
 
 if __name__ == '__main__':
+
+    # get csv path with user input
+    file_ext = '.csv'
+    user_table_path = 'example_data/default_table_data'
+
+    # file that will be altered by user
+    temp_user_table =  user_table_path + '_copy' + file_ext
+
+    shutil.copy(user_table_path + file_ext, temp_user_table)
 
     app.run_server(debug = True,
                     port = 8050,
