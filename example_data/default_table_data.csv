@@ -1,9 +1,9 @@
-﻿Scource,Conditional,Serach Value,Group,Category
-File,Contains,m,Male,Sex
-File,Contains,f,Female,Sex
-File,Ends withs,CUS,CUS,Stressor
-File,Contains,wt,WildType,Genotype
-Comment,Contains,5hz,5Hz,Stim
-Channel Structure,Order,1,BLA,Region
-Channel Structure,Order,2,PFC,Region
-Channel Structure,Order,3,EMG,Region
+﻿source,conditional,search value,group,category
+channel_structure,order,1,bla,region
+channel_structure,order,2,pfc,region
+channel_structure,order,3,emg,region
+file,contains,m,male,sex
+file,contains,f,female,sex
+channel,endswith,cus,cus,stressor
+file,startswith,wt,wildtype,genotype
+comment,contains,5hz,5hz,stim
