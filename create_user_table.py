@@ -24,7 +24,7 @@ def dashtable(df):
 
     dash_cols = [] # create dashtable column names
     for x in df.columns :
-        temp_dict = {'name':x,'id':x,'hideable': 'last'}
+        temp_dict = {'name':x,'id':x}
         if x in dropdown_cols:   
             temp_dict.update({'presentation': 'dropdown'})
         # append to list    
@@ -36,7 +36,7 @@ def dashtable(df):
             drop_list = []
             for x in drop_options[i]: # loop through column elements
                 drop_list.append({'label': x, 'value': x})
-            drop_dict.update({dropdown_cols[i]:{'options': drop_list}}) # append to dict
+            drop_dict.update({dropdown_cols[i]:{'options': drop_list, 'clearable':False}}) # append to dict
     return dash_cols, df, drop_dict
 
 
