@@ -1,0 +1,9 @@
+﻿Scource,Conditional,Serach Value,Group,Category
+File,Contains,m,Male,Sex
+File,Contains,f,Female,Sex
+File,Ends withs,CUS,CUS,Stressor
+File,Contains,wt,WildType,Genotype
+Comment,Contains,5hz,5Hz,Stim
+Channel Structure,Order,1,BLA,Region
+Channel Structure,Order,2,PFC,Region
+Channel Structure,Order,3,EMG,Region
