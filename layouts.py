@@ -42,8 +42,8 @@ layout1 =  html.Div(id = 'layout_channel', children=[
                         'textAlign': 'center',
                         'backgroundColor': 'rgb(230, 230, 230)',
                             },
-                    # style_data={
-                    #     'width': '125px', 'minWidth': '125px', 'maxWidth': '125px'}
+                    style_data={
+                        'width': '125px', 'minWidth': '125px', 'maxWidth': '125px'}
             )
     ]),
 

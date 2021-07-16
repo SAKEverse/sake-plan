@@ -28,8 +28,7 @@ app.server.secret_key = os.urandom(24)
 # Define main layout
 app.layout = html.Div(children = [
     
-    html.Div(children = layout1),
-    
+    html.Div(children = layout1), 
 ])
 
 
@@ -42,30 +41,27 @@ app.layout = html.Div(children = [
     ],
 
     [Input('add_row_button', 'n_clicks')],
+    # [State("user_table","data")]
     )
 def colony_update( n_clicks):
 
     # get data in dash table format
+    # session.update({'df': pd.read_csv(temp_user_table)})
     dash_cols, df, drop_dict = dashtable(pd.read_csv(temp_user_table)) # get dashtable data
 
+    print(n_clicks)
     if n_clicks > 0: # Add rows when button is clicked
+        
         a = np.empty([1, len(df.columns)]) # create empty numpy array
         a[:] = np.nan # convert all to nans
         append_df = pd.DataFrame(a, columns = df.columns) # create dataframe
         df = df.append(append_df, ignore_index=True) # append dataframe
 
+    # # get dataframe
+    # dash_cols, df, drop_dict = dashtable(pd.DataFrame(table_data))  # get dashtable data
+
     return dash_cols, df.to_dict('records'), True, drop_dict
 
-
-# Get data from channel table
-@app.callback( 
-    Output('channel_inputs', 'children'),
-    [Input('channel_table', 'data')],
-)
-def get_channels(data):
-    session.update({'unique_channels':[x['channel_id'] for x in data]})
-
-    # return create_channel_table(session['unique_channels'])
 
 # Retrieve path and plot tree diagram
 @app.callback(
@@ -95,6 +91,7 @@ def update_output(n_clicks, folder_path):
 
 if __name__ == '__main__':
 
+    # get table
     # get csv path with user input
     file_ext = '.csv'
     user_table_path = 'example_data/default_table_data'
