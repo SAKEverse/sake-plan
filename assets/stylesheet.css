@@ -1,40 +1,37 @@
 
-#main_dropdown_div {
-    padding-bottom: 10px;
-}
 
-.dcc_dropdown {
-    width: 300px;
+#data_path_main_div{
+    display:inline-block;
+    padding-top: 5px;
 }
 
 #generate_div {
-    padding-bottom: 10px;
+    padding-right: 5px;
+    display:inline-block;
+}
+
+#data_path_input{
+    width: 300px;
 }
 
 #generate_button {
     color: white;
-    background-color: black
+    background-color: black;
 }
 
-#unique_channel_label_container {
-    display: table-cell;
-    padding: 5px;
+
+#add_row_button_div{
+    display: inline-flex;
 }
-#unique_channel_label {
+
+#user_table_div{
+    width: 50%;
+    padding-top:5px;
+}
+
+#add_row_button {
     color: white;
-    padding: 5px;
-    background-color: rgba(0, 0, 0);
-    font-weight: bold;
-  }
-
-#unique_channel_number {
-    display: table-cell;
-}
-
-#channel_table{
-    width: 200px;
-    font-size: 16px;
-    text-align: center;
+    background-color: rgb(2, 207, 12);  
 }
 
 #tree_structure{
