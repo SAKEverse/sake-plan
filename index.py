@@ -30,16 +30,18 @@ app.layout = html.Div(children = [
     html.Div(children = layout1), 
 ])
 
-# get data on app load
+# update app
 @app.callback(
     Output('user_df', 'data'),
-    Input('hidden_div', 'id'),
-    
+    [Input('hidden_div', 'children'),
+    Input('user_table', 'data'),]
+   
     )
-def get_data_at_start(id):
-    # get default dataframe
-    df = pd.read_csv(temp_user_table)
-    # pass to session df.to_dict('list')
+def get_data_at_start(empty_input, table_data):
+    
+    # convert data to dataframe
+    df = pd.DataFrame(table_data)
+ 
     return df.to_json(date_format='iso', orient='split')
 
 
@@ -52,14 +54,21 @@ def get_data_at_start(id):
     Output('user_table', 'dropdown')
     ],
     [Input("add_row_button","n_clicks"),
-    Input('user_df', 'data')],
+    State('user_df', 'data')],
     
     )
 def colony_update(n_clicks, json_data):
 
-    # get data in dash table format
-    df = pd.read_json(json_data, orient='split')
-    dash_cols, df, drop_dict = dashtable(df) # get dashtable data
+    # if dataframe doesn't exist create
+    if json_data == None:
+        # get default dataframe
+        df = pd.read_csv(temp_user_table)
+    else:
+        # get data in dash table format
+         df = pd.read_json(json_data, orient='split')
+
+    # get data in dashtable format
+    dash_cols, df, drop_dict = dashtable(df) 
 
     if n_clicks > 0: # Add rows when button is clicked
         
