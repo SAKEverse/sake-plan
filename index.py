@@ -30,14 +30,13 @@ app.layout = html.Div(children = [
     html.Div(children = layout1), 
 ])
 
-# update app
+# update dataframe
 @app.callback(
     Output('user_df', 'data'),
-    [Input('hidden_div', 'children'),
-    Input('user_table', 'data'),]
+    [Input('user_table', 'data'),]
    
     )
-def get_data_at_start(empty_input, table_data):
+def get_data_at_start(table_data):
     
     # convert data to dataframe
     df = pd.DataFrame(table_data)
@@ -59,13 +58,13 @@ def get_data_at_start(empty_input, table_data):
     )
 def colony_update(n_clicks, json_data):
 
-    # if dataframe doesn't exist create
+    # if dataframe doesn't read default from memory
     if json_data == None:
         # get default dataframe
         df = pd.read_csv(temp_user_table)
     else:
         # get data in dash table format
-         df = pd.read_json(json_data, orient='split')
+        df = pd.read_json(json_data, orient='split')
 
     # get data in dashtable format
     dash_cols, df, drop_dict = dashtable(df) 

@@ -8,7 +8,6 @@ import pandas as pd
 # Always present
 layout1 =  html.Div(id = 'layout_channel', children=[
 
-    html.Div(id = 'hidden_div', children=[], hidden=True),
     dcc.Store(id='user_df'),
 
     # 1- generate button + field div
@@ -48,7 +47,7 @@ layout1 =  html.Div(id = 'layout_channel', children=[
                         'backgroundColor': 'rgb(230, 230, 230)',
                             },
                     style_data={
-                        'width': '125px', 'minWidth': '125px', 'maxWidth': '125px'}
+                        'width': '150', 'minWidth': '100', 'maxWidth': '200'}
             )
     ]),
 
