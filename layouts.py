@@ -2,9 +2,14 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 import dash_daq as daq
+import pandas as pd
+
 
 # Always present
 layout1 =  html.Div(id = 'layout_channel', children=[
+
+    html.Div(id = 'hidden_div', children=[], hidden=True),
+    dcc.Store(id='user_df'),
 
     # 1- generate button + field div
     html.Div(id='generate_plus_field_div', children=[
