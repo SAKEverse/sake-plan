@@ -1,9 +1,9 @@
-﻿source,conditional,search value,group,category
+﻿source,conditional,search value,group name,category
 channel_structure,order,1,bla,region
 channel_structure,order,2,pfc,region
 channel_structure,order,3,emg,region
-file,contains,m,male,sex
-file,contains,f,female,sex
-channel,endswith,cus,cus,stressor
-file,startswith,wt,wildtype,genotype
-comment,contains,5hz,5hz,stim
+file_name,contains,m,male,sex
+file_name,contains,f,female,sex
+channel_name,endswith,cus,cus,stressor
+file_name,startswith,wt,wildtype,genotype
+comment_text,contains,5hz,5hz,stim
