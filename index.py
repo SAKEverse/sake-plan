@@ -61,7 +61,7 @@ def colony_update(n_clicks, json_data):
     # if dataframe doesn't read default from memory
     if json_data == None:
         # get default dataframe
-        df = pd.read_csv(temp_user_table)
+        df = pd.read_csv(user_table_path)
     else:
         # get data in dash table format
         df = pd.read_json(json_data, orient='split')
@@ -107,14 +107,7 @@ def colony_update(n_clicks, json_data):
 
 if __name__ == '__main__':
 
-    file_ext = '.csv'
-    user_table_path = 'example_data/default_table_data'
-
-    # file that will be altered by user
-    temp_user_table =  user_table_path + '_copy' + file_ext
-
-
-    shutil.copy(user_table_path + file_ext, temp_user_table)
+    user_table_path = 'example_data/default_table_data.csv'
 
     app.run_server(debug = True,
                     port = 8050,
