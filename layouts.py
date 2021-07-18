@@ -8,7 +8,7 @@ import pandas as pd
 # Always present
 layout1 =  html.Div(id = 'layout_channel', children=[
 
-    dcc.Store(id='user_df'),
+    dcc.Store(id='user_df', storage_type = 'session'),
 
     # 1- generate button + field div
     html.Div(id='generate_plus_field_div', children=[
@@ -24,12 +24,8 @@ layout1 =  html.Div(id = 'layout_channel', children=[
         ]),
     ]),
 
-    # 2- User table
-     html.Div( id='add_row_button_div', children=[
-            html.Button('Add row', id='add_row_button', n_clicks=0,   
-            ),]),
 
-    # create datatable
+    # 2 create user table
     html.Div(id='user_table_div', children=[
 
         dash_table.DataTable(id = 'user_table',
@@ -50,6 +46,11 @@ layout1 =  html.Div(id = 'layout_channel', children=[
                         'width': '150', 'minWidth': '100', 'maxWidth': '200'}
             )
     ]),
+
+    # 2- add row button
+     html.Div( id='add_row_button_div', children=[
+            html.Button('Add row', id='add_row_button', n_clicks=0,   
+            ),]),
 
 ])
 
