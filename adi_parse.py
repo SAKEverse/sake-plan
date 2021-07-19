@@ -19,18 +19,23 @@ class AdiParse:
     
     
     @beartype
-    def __init__(self, file_path:str):
+    def __init__(self, file_path:str, channel_order:list = []):
         """
+        
 
         Parameters
         ----------
         file_path : str
+            DESCRIPTION.
+        channel_order : list, optional
+            DESCRIPTION. The default is [].
 
         Returns
         -------
         None.
 
         """
+
         
         # pass to object properties
         self.file_path = file_path
@@ -38,18 +43,28 @@ class AdiParse:
         # get file name
         self.file_name = os.path.basename(self.file_path)
         
-        # default to largest block in file
-        fread = self.read_labchart_file()           # read file
+        # Get block
+        adi_obj = self.read_labchart_file()           # read file
         
-        block_len = np.zeros(fread.n_records)       # create empty array for storage
-        for block in range(fread.n_records):
+        block_len = np.zeros(adi_obj.n_records)       # create empty array for storage
+        for block in range(adi_obj.n_records):
             
             # get block length
-           block_len[block] = fread.channels[0].n_samples[block]
+           block_len[block] = adi_obj.channels[0].n_samples[block]
        
         self.block = np.argmax(block_len)           # find the block with larger length
+         
+        # Get total number of channels
+        self.n_channels = adi_obj.n_channels
         
-        del fread                                   # clear memory
+        if len(channel_order) == 0:
+            self.channel_order = 'Brain regions were not found'
+        elif self.n_channels%len(channel_order) != 0:
+            self.channel_order = 'Brain regions provided do not match channel order'
+        else:
+            self.channel_order = channel_order
+               
+        del adi_obj                                   # clear memory
     
     
     def read_labchart_file(self):
@@ -83,22 +98,47 @@ class AdiParse:
         cols = {'channel_id', 'channel_name'}
 
         # create empty dataframe
-        df = pd.DataFrame(data = np.zeros((adi_obj.n_channels, len(cols))), columns = cols, dtype = 'string')
+        df = pd.DataFrame(data = np.zeros((self.n_channels, len(cols))), columns = cols, dtype = 'string')
         
         # iterate over channels and get names
-        for ch in range(adi_obj.n_channels):
+        for ch in range(self.n_channels):
             
             # append channel info to dictionary
             df.at[ch, 'channel_id'] = str(ch)
             df.at[ch, 'channel_name'] = adi_obj.channels[ch].name
+            
+            
+        del adi_obj # clear memory
         
         return df
     
-    
-    def get_all_file_properties(self):
+    def add_file_name(self, df):
         """
-        Extracts file name, channel names, index , comment text and time.
-        These information are added to a pandas DataFrame
+        Adds file name to channels dataframe
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+
+
+        Returns
+        -------
+        df : pd.DataFrame
+
+        """
+        
+        # add file name
+        df['file_name'] = self.file_name
+        
+        return df
+    
+    def add_comments(self, df):
+        """
+        Add one column to a channels df for each comment and comment time across channels.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
 
         Returns
         -------
@@ -109,12 +149,6 @@ class AdiParse:
         # read labchart file
         adi_obj = self.read_labchart_file()
         
-        # get channel names
-        df = self.get_channel_names()
-        
-        # add file name
-        df['file_name'] = self.file_name
-        
         # add comments for each channel
         properties = {'text' : 'comment_', 'tick_position' : 'comment_time_'}
         
@@ -122,7 +156,7 @@ class AdiParse:
         for key, val in properties.items():
             
             temp_coms = [] # creaty empty list
-            for ch in range(adi_obj.n_channels): # iterate over channels
+            for ch in range(self.n_channels): # iterate over channels
                 
                 # convert comments to flattened list
                 temp_coms.append([getattr(x, key) for x in adi_obj.channels[ch].records[self.block].comments])
@@ -135,7 +169,57 @@ class AdiParse:
                 
                 # pass to dataframe
                 df[val + str(i)] = df_comments.iloc[:,i]
+                
+        del adi_obj # clear memory
+        
+        return df
+    
+    def add_brain_region(self, df):
+        """
+        Add brain regions to channels dataframe
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+
+        Returns
+        -------
+        df : pd.DataFrame
+
+        """
+        
+        if type(self.channel_order) == str:
+            df['brain_region'] = self.channel_order
+        else:
             
+            df['brain_region'] = self.channel_order * int(self.n_channels/len(self.channel_order))
+            
+        return df
+    
+    
+    def get_all_file_properties(self):
+        """
+        Extracts file name, channel names, channel number, brain region, comment text and time.
+        These information are added to a pandas DataFrame
+
+        Returns
+        -------
+        df : pd.DataFrame
+
+        """       
+        
+        # get and file names
+        df = self.get_channel_names()
+        
+        # add file names
+        df = self.add_file_name(df)
+        
+        # add comments
+        df = self.add_comments(df)
+        
+        # add brain region
+        df = self.add_brain_region(df)
+         
         return df
             
         
@@ -214,8 +298,10 @@ class AdiParse:
 
 if __name__ == '__main__':
     
-    # initiate object        
-    adi_parse= AdiParse(r'C:\Users\panton01\Desktop\example_files\#1animal_sdsda_wt.adicht')
+    file_path = r'C:\Users\panton01\Desktop\example_files\#1animal_sdsda_wt.adicht'
+    channel_order = ['Bla', 'Hipp', 'Emg']
+    # initiate object      
+    adi_parse= AdiParse(file_path, channel_order)
     
     df =  adi_parse.get_all_file_properties()
     
