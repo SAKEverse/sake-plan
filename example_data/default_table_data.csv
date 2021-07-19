@@ -1,7 +1,7 @@
 ﻿Source,Search Function,Search Value,Assigned Group Name,Category,Time Selection (min)
-channel_structure,order,1,bla,region,start:end
-channel_structure,order,2,pfc,region,start:end
-channel_structure,order,3,emg,region,start:end
+channel_order,order,1,bla,region,start:end
+channel_order,order,2,pfc,region,start:end
+channel_order,order,3,emg,region,start:end
 file_name,contains,_m,male,sex,start:end
 file_name,contains,_f,female,sex,start:100
 channel_name,endswith,_cus,cus,stressor,50:100
