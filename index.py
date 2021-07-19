@@ -13,7 +13,7 @@ from flask import session
 # User Defined #
 from app import app
 from layouts import layout1
-from adi_read import AdiParse
+from adi_parse import AdiParse
 from create_user_table import dashtable
 from tree import drawSankey
 # import callbacks
