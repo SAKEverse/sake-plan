@@ -2,7 +2,7 @@ import pandas as pd
 
 
 # Create dropdown column elements
-dropdown_cols = ['source', 'conditional']
+dropdown_cols = ['Source', 'Search Function']
 drop_options =[{'channel_structure', 'file_name', 'channel_name', 'comment_text'},
 {'contains', 'startswith', 'endswith', 'order'}] 
 
