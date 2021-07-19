@@ -1,9 +1,9 @@
-﻿source,conditional,search value,group name,category
-channel_structure,order,1,bla,region
-channel_structure,order,2,pfc,region
-channel_structure,order,3,emg,region
-file_name,contains,m,male,sex
-file_name,contains,f,female,sex
-channel_name,endswith,cus,cus,stressor
-file_name,startswith,wt,wildtype,genotype
-comment_text,contains,5hz,5hz,stim
+﻿Source,Search Function,Search Value,Assigned Group Name,Category,Time Selection (min)
+channel_structure,order,1,bla,region,start:end
+channel_structure,order,2,pfc,region,start:end
+channel_structure,order,3,emg,region,start:end
+file_name,contains,_m,male,sex,start:end
+file_name,contains,_f,female,sex,start:100
+channel_name,endswith,_cus,cus,stressor,50:100
+file_name,startswith,_wt,wildtype,genotype,-100:end
+comment_text,contains,_veh,vehicle,treatment,-20:end
