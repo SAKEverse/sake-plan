@@ -6,6 +6,7 @@ Created on Tue Jul 13 13:31:17 2021
 """
 
 ### ------------------------ IMPORTS -------------------------------------- ###
+import os
 from beartype import beartype
 import numpy as np
 import pandas as pd
@@ -33,6 +34,22 @@ class AdiParse:
         
         # pass to object properties
         self.file_path = file_path
+        
+        # get file name
+        self.file_name = os.path.basename(self.file_path)
+        
+        # default to largest block in file
+        fread = self.read_labchart_file()           # read file
+        
+        block_len = np.zeros(fread.n_records)       # create empty array for storage
+        for block in range(fread.n_records):
+            
+            # get block length
+           block_len[block] = fread.channels[0].n_samples[block]
+       
+        self.block = np.argmax(block_len)           # find the block with larger length
+        
+        del fread                                   # clear memory
     
     
     def read_labchart_file(self):
@@ -77,6 +94,51 @@ class AdiParse:
         
         return df
     
+    
+    def get_all_file_properties(self):
+        """
+        Extracts file name, channel names, index , comment text and time.
+        These information are added to a pandas DataFrame
+
+        Returns
+        -------
+        df : pd.DataFrame
+
+        """
+        
+        # read labchart file
+        adi_obj = self.read_labchart_file()
+        
+        # get channel names
+        df = self.get_channel_names()
+        
+        # add file name
+        df['file_name'] = self.file_name
+        
+        # add comments for each channel
+        properties = {'text' : 'comment_', 'tick_position' : 'comment_time_'}
+        
+        # iterate over properties
+        for key, val in properties.items():
+            
+            temp_coms = [] # creaty empty list
+            for ch in range(adi_obj.n_channels): # iterate over channels
+                
+                # convert comments to flattened list
+                temp_coms.append([getattr(x, key) for x in adi_obj.channels[ch].records[self.block].comments])
+            
+            # convert list to dataframe
+            df_comments = pd.DataFrame(temp_coms)
+            
+            # add columns to dataframe
+            for i in range(df_comments.shape[1]): # iterate over max number of comments
+                
+                # pass to dataframe
+                df[val + str(i)] = df_comments.iloc[:,i]
+            
+        return df
+            
+        
     
     def get_unique_conditions(self):
         """
@@ -148,15 +210,20 @@ class AdiParse:
         return idx
             
     # create unique sets of attributes from channel names to autopopulate the user drop down menus        
-            
+
+
 if __name__ == '__main__':
     
     # initiate object        
-    adi_read = AdiParse(r'Z:\Pantelis\example_ch_names.adicht')
+    adi_parse= AdiParse(r'C:\Users\panton01\Desktop\example_files\#1animal_sdsda_wt.adicht')
     
-    df, unique_groups = adi_read.get_unique_conditions()
+    df =  adi_parse.get_all_file_properties()
+    
+    # adi_obj = adi_read.read_labchart_file()
+    
+    # df, unique_groups = adi_parse.get_unique_conditions()
 
-    df.to_csv('sankey_data.csv')
+    # df.to_csv('sankey_data.csv')
     #
     # idx = adi_read.filter_names('fc')
       
