@@ -19,7 +19,7 @@ layout1 =  html.Div(id = 'layout_channel', children=[
 
         html.Div(id='data_path_main_div', 
             children = [ 
-                dcc.Input(id='data_path_input', type='text', placeholder='Path-to-data'),
+                dcc.Input(id='data_path_input', type='text', placeholder='Path to data folder'),
                 html.Div(id='out_all_types'),
         ]),
     ]),
@@ -43,7 +43,7 @@ layout1 =  html.Div(id = 'layout_channel', children=[
                         'backgroundColor': 'rgb(230, 230, 230)',
                             },
                     style_data={
-                        'width': '150', 'minWidth': '100', 'maxWidth': '200'}
+                        'width': '150', 'minWidth': '100', 'maxWidth': '175'}
             )
     ]),
 
