@@ -150,7 +150,7 @@ class AdiParse:
         adi_obj = self.read_labchart_file()
         
         # add comments for each channel
-        properties = {'text' : 'comment_', 'tick_position' : 'comment_time_'}
+        properties = {'text' : 'comment_text_', 'tick_position' : 'comment_time_'}
         
         # iterate over properties
         for key, val in properties.items():
