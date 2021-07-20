@@ -63,7 +63,7 @@ def contains(df_series, match:str):
     idx: bool
 
     """
-    return np.array(df_series.str.contains(match))
+    return np.array(df_series.str.contains(match), dtype = bool)
     
 def endswith(df_series, match:str):
     """
@@ -79,9 +79,9 @@ def endswith(df_series, match:str):
     idx: bool
 
     """
-    return np.array(df_series.str.endswith(match))
+    return np.array(df_series.str.endswith(match), dtype = bool)
     
-def startwith(df_series, match:str):
+def startswith(df_series, match:str):
     """
     Filter pd.series with string and get index
 
@@ -95,4 +95,4 @@ def startwith(df_series, match:str):
     idx: bool
 
     """
-    return np.array(df_series.str.startwith(match), dtype = bool)
+    return np.array(df_series.str.startswith(match), dtype = bool)
