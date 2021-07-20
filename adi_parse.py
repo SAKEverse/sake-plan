@@ -21,14 +21,12 @@ class AdiParse:
     @beartype
     def __init__(self, file_path:str, channel_order:list = []):
         """
-        
+        Retrieve file properties and pass to self.properties
 
         Parameters
         ----------
         file_path : str
-            DESCRIPTION.
         channel_order : list, optional
-            DESCRIPTION. The default is [].
 
         Returns
         -------
@@ -57,13 +55,16 @@ class AdiParse:
         # Get total number of channels
         self.n_channels = adi_obj.n_channels
         
+        # Get file length
+        self.file_length = block_len [self.block]
+        
         if len(channel_order) == 0:
             self.channel_order = 'Brain regions were not found'
         elif self.n_channels%len(channel_order) != 0:
             self.channel_order = 'Brain regions provided do not match channel order'
         else:
             self.channel_order = channel_order
-               
+            
         del adi_obj                                   # clear memory
     
     
@@ -129,6 +130,26 @@ class AdiParse:
         
         # add file name
         df['file_name'] = self.file_name.replace('.adicht', '')
+        
+        return df
+    
+    def add_file_length(self, df):
+        """
+        Adds file length (in samples) to channels dataframe
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+
+
+        Returns
+        -------
+        df : pd.DataFrame
+
+        """
+        
+        # add file length
+        df['file_length'] = self.file_length
         
         return df
     
@@ -219,6 +240,9 @@ class AdiParse:
         
         # add brain region
         df = self.add_brain_region(df)
+        
+        # add file length
+        df = self.add_file_length(df)
          
         return df
             
@@ -298,20 +322,22 @@ class AdiParse:
 
 if __name__ == '__main__':
     
-    file_path = r'C:\Users\panton01\Desktop\example_files\#1animal_sdsda_wt.adicht'
+    file_path = r'C:\Users\panton01\Desktop\example_files\#3animal_sdsda_wt_two.adicht'
     channel_order = ['Bla', 'Hipp', 'Emg']
     # initiate object      
     adi_parse= AdiParse(file_path, channel_order)
     
-    df =  adi_parse.get_all_file_properties()
+    adi_obj = adi_parse.read_labchart_file()
     
-    # adi_obj = adi_read.read_labchart_file()
+    # df =  adi_parse.get_all_file_properties()
+    
+
     
     # df, unique_groups = adi_parse.get_unique_conditions()
 
     # df.to_csv('sankey_data.csv')
     #
-    # idx = adi_read.filter_names('fc')
+    # idx = adi_parse.filter_names('fc')
       
             
             
