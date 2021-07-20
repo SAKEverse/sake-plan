@@ -60,12 +60,15 @@ def create_index_array(file_data, user_data):
 
     """
     
+
+    
+    # get index from search values
+    
     # create sources list
     sources = list(file_data.columns[file_data.columns.str.contains('comment_text')])
     sources.extend(['channel_name', 'file_name'])
     
     index = {} # create empty dictionary to store index from search
-    
     for i in range(len(user_data)): # iterate over user data entries       
         for source in sources: # iterate over source types    
 
@@ -73,7 +76,16 @@ def create_index_array(file_data, user_data):
                 
                 # find index for specified source and match string
                 idx = getattr(string_filters, user_data.at[i, 'Search Function'])(file_data[source], user_data.at[i, 'Search Value'])
-                index.update({user_data.at[i, 'Assigned Group Name']: idx}) # append to index dictionary
+                
+                # append to index dictionary
+                index.update({user_data.at[i, 'Assigned Group Name']: idx}) 
+    
+    # add columns
+    add_columns = ['file_name', 'brain_region', 'channel_id']
+    for col in add_columns:
+        index.update({col: file_data[col]})
+        
+    # get time
                          
     return pd.DataFrame(index)
             
