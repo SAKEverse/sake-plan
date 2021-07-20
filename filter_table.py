@@ -45,28 +45,37 @@ def get_file_data(folder_path:str, channel_order:list):
     return file_data
              
 
-def create_index_array(user_data, file_data):
+def create_index_array(file_data, user_data):
+    """
+    Create boolean index array for each search value
+
+    Parameters
+    ----------
+    file_data : pd.DataFrame, aggregated data from labchart files
+    user_data : pd.DataFrame, user search and grouping parameters
+
+    Returns
+    -------
+    pd.DataFrame, with index
+
+    """
     
+    # create sources list
+    sources = list(file_data.columns[file_data.columns.str.contains('comment_text')])
+    sources.extend(['channel_name', 'file_name'])
     
-    cols = file_data.columns[file_data.columns.str.contains('comment_text')]
-    cols.extend(['channel_name', 'file_name'])
+    index = {} # create empty dictionary to store index from search
     
-    cols = {}
-    
-    
-    for i in range(len(user_data)): 
-        if user_data.at[i, 'Source'] == 'file_name':
-            # find index
-            idx = getattr(string_filters, user_data.at[i, 'Search Function'])(file_data['file_name'], user_data.at[i, 'Search Value'])
-            cols.update({user_data.at[i, 'Assigned Group Name']: idx})
-          
-        elif user_data.at[i, 'Source'] == 'channel_name':
-            # find index
-            idx = getattr(string_filters, user_data.at[i, 'Search Function'])(file_data['channel_name'], user_data.at[i, 'Search Value'])
-            cols.update({user_data.at[i, 'Assigned Group Name']: idx})
-            
-            
-    return pd.DataFrame(cols)
+    for i in range(len(user_data)): # iterate over user data entries       
+        for source in sources: # iterate over source types    
+
+            if source in user_data.at[i, 'Source']: # check if source matches user data
+                
+                # find index for specified source and match string
+                idx = getattr(string_filters, user_data.at[i, 'Search Function'])(file_data[source], user_data.at[i, 'Search Value'])
+                index.update({user_data.at[i, 'Assigned Group Name']: idx}) # append to index dictionary
+                         
+    return pd.DataFrame(index)
             
             
 
@@ -87,7 +96,7 @@ if __name__ == '__main__':
     # get all file data in dataframe
     file_data = get_file_data(folder_path, channel_order)
     
-    df = create_index_array(user_data, file_data)
+    df = create_index_array(file_data, user_data)
     
     
     
