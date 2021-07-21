@@ -1,9 +1,10 @@
 ﻿Source,Search Function,Search Value,Assigned Group Name,Category,Time Selection (min)
-channel_order,order,1,bla,region,start:end
-channel_order,order,2,pfc,region,start:end
-channel_order,order,3,emg,region,start:end
-channel_name,contains,m,male,sex,start:end
-file_name,startswith,f,female,sex,start:100
-channel_name,contains,cus,cus,stressor,50:100
-file_name,endswith,wt,wildtype,genotype,-100:end
-comment_text,contains,veh,vehicle,treatment,-20:end
+channel_order,order,1,bla,region,all
+channel_order,order,2,pfc,region,all
+channel_order,order,3,emg,region,all
+channel_name,contains,m,male,sex,all
+file_name,startswith,f,female,sex,all
+channel_name,contains,cus,cus,stressor,all
+file_name,endswith,wt,wildtype,genotype,all
+comment_text,contains,veh,baseline,treatment,-20:-1
+comment_text,contains,veh,vehicle,treatment,1:30
