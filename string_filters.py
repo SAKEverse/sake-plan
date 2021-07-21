@@ -5,7 +5,6 @@ Created on Tue Jul 20 14:14:29 2021
 @author: panton01
 """
 import numpy as np
-import pandas as pd
 
 def get_channel_order(user_data):
     """
@@ -21,11 +20,8 @@ def get_channel_order(user_data):
 
     """
     
-    # find index of channel order fields
-    idx = user_data['Source'] == 'channel_order'
-    
     # get data containing channel order
-    channel_order = user_data[idx]
+    channel_order = user_data[user_data['Source'] == 'channel_order']
     
     # sort by order number
     channel_order = channel_order.sort_values(by=['Search Value'])
@@ -47,6 +43,23 @@ def get_channel_order(user_data):
         raise('Each number in channel order must be unique. Got:', order, 'instead')
         
     return regions
+
+
+def exact_match(df_series, match:str):
+    """
+    Filter pd.series with string and get index
+
+    Parameters
+    ----------
+    df_series : pd.Series
+    match : str, to search the series
+    
+    Returns
+    -------
+    idx: bool
+
+    """
+    return np.array(df_series == match, dtype = bool)
 
 
 def contains(df_series, match:str):
