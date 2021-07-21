@@ -43,6 +43,105 @@ def get_file_data(folder_path:str, channel_order:list):
     file_data = file_data.apply(lambda x: x.astype(str).str.lower())
     
     return file_data
+
+
+def reverse_hot_encoding(sort_df):
+    """
+    Reverse hot coding in dataframe and replace with
+
+    Parameters
+    ----------
+    sort_df : pd.DataFrame, with columns in one hot encoding format
+
+    Returns
+    -------
+    col_labels: 1D np.array with columns retrieved from one hot encoded format
+
+    """
+
+    # get columns
+    labels = np.array(sort_df.columns)
+    
+    # find index where column is True
+    idx = np.argmax(np.array(sort_df), axis = 1)
+    
+    # map columns to index
+    col_labels = np.array(list(map(labels.item, idx)))  
+    
+    return col_labels
+    
+    
+    
+    
+
+def add_comments_to_index(file_data, user_data, fs =4000):
+    
+    # string to fetch columns
+    comment_text = 'comment_text'
+    comment_time = 'comment_time'
+    
+    # get file data column names
+    comment_text_cols = list(file_data.columns[file_data.columns.str.contains(comment_text)])
+    comment_time_cols = list(file_data.columns[file_data.columns.str.contains(comment_time)])
+    com = dict(zip(comment_text_cols, comment_time_cols))
+    
+    # get user data containing comment text
+    user_com_text = user_data[user_data['Source'] == comment_text].reset_index()
+    
+    # create empty arrays
+    index = {}
+    index_text = {} # create empty dictionary to store index from search
+    index_time = {} # create empty dictionary to store time for each comment
+    
+    for i in range(len(user_com_text)): # user comment groups
+    
+        for comtext,comtime in com.items(): # file comments
+                
+            # find index for specified source and match string
+            idx = getattr(string_filters, user_com_text.at[i, 'Search Function'])(file_data[comtext], user_com_text.at[i, 'Search Value'])
+            
+            index_text.update({comtext:idx})
+            index_time.update({comtime:file_data[comtime]})
+            
+        # create dataframe
+        com_text_df = pd.DataFrame(index_text) 
+        com_time_array = np.array(pd.DataFrame(index_time))
+        if np.any(np.all(com_text_df,axis=1)) == True:
+            print('more than one comment present')
+        else:
+            
+            # get comment times
+            user_time = user_com_text.at[i, 'Time Selection (min)'].split(':')
+            user_time = np.array([int(x) for x in user_time])* fs*60
+            
+            # get comment index
+            com_idx = np.argmax(np.array(com_text_df), axis = 1)
+            idx = np.zeros((com_idx.shape[0],2))
+            
+            for ii in range(len(com_text_df)):
+                
+                # get index of where comment was detected
+                idx_one = np.where(com_text_df.iloc[ii,:] == True)[0]
+                               
+                if len(idx_one) == 0: # if no comment was detected
+                    idx[ii] = file_data['file_length'][ii]
+                else:
+                    idx[ii,:] = int(float(com_time_array[ii,idx_one[0]])) + user_time
+                               
+            # add comment to index
+            index.update({user_data.at[i, 'Assigned Group Name']: idx})
+            
+    
+    # for i in len(com_text_df):
+        
+        # com_text_df.at[i,'time'] = com_time_array[np.array(com_text_df)]
+    
+    # #
+        
+    
+    return com_text_df
+     
+        
              
 
 def create_index_array(file_data, user_data):
@@ -65,27 +164,28 @@ def create_index_array(file_data, user_data):
     # get index from search values
     
     # create sources list
-    sources = list(file_data.columns[file_data.columns.str.contains('comment_text')])
+    # sources = list(file_data.columns[file_data.columns.str.contains('comment_text')])
+    sources=[]
     sources.extend(['channel_name', 'file_name'])
     
     index = {} # create empty dictionary to store index from search
     for i in range(len(user_data)): # iterate over user data entries       
         for source in sources: # iterate over source types    
 
-            if source in user_data.at[i, 'Source']: # check if source matches user data
+            if user_data.at[i, 'Source'] in source: # check if source matches user data
                 
                 # find index for specified source and match string
                 idx = getattr(string_filters, user_data.at[i, 'Search Function'])(file_data[source], user_data.at[i, 'Search Value'])
+                               
+                # group comments from two columns before merging
                 
-                # append to index dictionary
+                # append to index dictionary                
                 index.update({user_data.at[i, 'Assigned Group Name']: idx}) 
     
     # add columns
-    add_columns = ['file_name', 'brain_region', 'channel_id']
+    add_columns = ['file_name', 'channel_id', 'block' ,'brain_region',  'file_length']
     for col in add_columns:
         index.update({col: file_data[col]})
-        
-    # get time
                          
     return pd.DataFrame(index)
             
@@ -101,6 +201,9 @@ if __name__ == '__main__':
     user_data = pd.read_csv('example_data/default_table_data.csv')
     # convert data frame to lower case
     user_data = user_data.apply(lambda x: x.astype(str).str.lower())
+    # remove rows with no source
+    user_data = user_data[user_data.Source != '']
+    
     
     # get channel order
     channel_order = string_filters.get_channel_order(user_data)
@@ -110,6 +213,7 @@ if __name__ == '__main__':
     
     df = create_index_array(file_data, user_data)
     
+    # comdf = add_comments_to_index(file_data, user_data)
     
     
     

@@ -15,8 +15,8 @@ import adi
 
 class AdiParse:
     """
-    """
-    
+    Class to parse labchart files and retrieve information using the adi-reader library.
+    """   
     
     @beartype
     def __init__(self, file_path:str, channel_order:list = []):
@@ -170,7 +170,7 @@ class AdiParse:
         """
         
         # add file length
-        df['file_length'] = self.file_length
+        df['file_length'] = int(self.file_length)
         
         return df
     
@@ -351,9 +351,9 @@ if __name__ == '__main__':
     # initiate object      
     adi_parse= AdiParse(file_path, channel_order)
     
-    adi_obj = adi_parse.read_labchart_file()
+    # adi_obj = adi_parse.read_labchart_file()
     
-    # df =  adi_parse.get_all_file_properties()
+    df =  adi_parse.get_all_file_properties()
     
 
     
