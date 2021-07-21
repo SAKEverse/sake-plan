@@ -4,7 +4,7 @@ import pandas as pd
 # Create dropdown column elements
 dropdown_cols = ['Source', 'Search Function']
 drop_options =[{'channel_order', 'file_name', 'channel_name', 'comment_text'},
-{'contains', 'startswith', 'endswith', 'order'}] 
+{'contains', 'startswith', 'endswith', 'order', 'exact_match'}] 
 
 def dashtable(df):
     """
