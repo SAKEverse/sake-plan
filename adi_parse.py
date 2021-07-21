@@ -56,7 +56,7 @@ class AdiParse:
         self.n_channels = adi_obj.n_channels
         
         # Get file length
-        self.file_length = block_len [self.block]
+        self.file_length = int(block_len[self.block])        
         
         if len(channel_order) == 0:
             self.channel_order = 'Brain regions were not found'
@@ -130,6 +130,27 @@ class AdiParse:
         
         # add file name
         df['file_name'] = self.file_name.replace('.adicht', '')
+        
+        return df
+    
+    
+    def add_block(self, df):
+        """
+        Adds block number to channels dataframe
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+
+
+        Returns
+        -------
+        df : pd.DataFrame
+
+        """
+        
+        # add file name
+        df['block'] = self.block
         
         return df
     
@@ -243,6 +264,9 @@ class AdiParse:
         
         # add file length
         df = self.add_file_length(df)
+        
+        # add file length
+        df = self.add_block(df)
          
         return df
             
