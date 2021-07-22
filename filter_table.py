@@ -45,6 +45,32 @@ def get_file_data(folder_path:str, channel_order:list):
     return file_data
 
 
+def get_categories(user_data):
+    """
+    Get unique categories and groups in dictionary.
+
+    Parameters
+    ----------
+    user_data : pd.DataFrame, with user group inputs.
+
+    Returns
+    -------
+    groups : dict, keys are unique categories and groups.
+    
+    """
+    
+    # get unique categories
+    unique_categories = user_data['Category'].unique()
+    
+    groups = {} # create group dictionary
+    for category in unique_categories: # iterate over categories
+        
+        # which groups exist in categories
+        groups.update({category: list(user_data['Assigned Group Name'][user_data['Category'] == category]) })
+        
+    return groups
+
+
 def reverse_hot_encoding(sort_df):
     """
     Reverse hot coding in dataframe and replace with
@@ -70,11 +96,41 @@ def reverse_hot_encoding(sort_df):
     
     return col_labels
     
+
+def convert_logicdf_to_groups(index_df, logic_index_df, groups_ids:dict):
+    """
+    Convert logic from logic_index_df to groups and and append to index_df
+
+    Parameters
+    ----------
+    index_df : pd.DataFrame, to append categories
+    logic_index_df : pd.DataFrame, containing logic
+    groups_ids : dict, containg categories as keys and groups as values
+
+    Returns
+    -------
+    index_df : pd.DataFrame
+
+    """
+    
+    # convert logic to groups
+    for category, groups in groups_ids.items():
+        
+        # check if all groups present in dataframe
+        groups_present = all(elem in logic_index_df.columns  for elem in groups)
+        
+        if (groups_present == True): # are all groups present in dataframe?
+            if (logic_index_df[groups].any().any() == True):  # was any group detected? 
+            
+                # convert logic to groups
+                index_df[category] = reverse_hot_encoding(logic_index_df[groups])
+                
+    return index_df
     
     
     
 
-def add_comments_to_index(file_data, user_data, fs =4000):
+def add_comments_to_index(file_data, user_data, fs = 4000):
     
     # string to fetch columns
     comment_text = 'comment_text'
@@ -155,41 +211,50 @@ def create_index_array(file_data, user_data):
 
     Returns
     -------
-    pd.DataFrame, with index
+    index_df: pd.DataFrame, with index
 
     """
     
 
-    
-    # get index from search values
-    
     # create sources list
-    # sources = list(file_data.columns[file_data.columns.str.contains('comment_text')])
-    sources=[]
-    sources.extend(['channel_name', 'file_name'])
+    sources = ['channel_name', 'file_name']
     
     index = {} # create empty dictionary to store index from search
+    
     for i in range(len(user_data)): # iterate over user data entries       
         for source in sources: # iterate over source types    
 
             if user_data.at[i, 'Source'] in source: # check if source matches user data
                 
                 # find index for specified source and match string
-                idx = getattr(string_filters, user_data.at[i, 'Search Function'])(file_data[source], user_data.at[i, 'Search Value'])
-                               
-                # group comments from two columns before merging
+                idx = getattr(string_filters, user_data.at[i, 'Search Function'])(file_data[source], user_data.at[i, 'Search Value'])                              
                 
                 # append to index dictionary                
                 index.update({user_data.at[i, 'Assigned Group Name']: idx}) 
     
+    
+    # convert to dataframe
+    logic_index_df = pd.DataFrame(index)
+    
+    # create empty dataframe for index
+    index_df = pd.DataFrame()
+               
     # add columns
     add_columns = ['file_name', 'channel_id', 'block' ,'brain_region',  'file_length']
     for col in add_columns:
-        index.update({col: file_data[col]})
+        index_df[col] = file_data[col]   
+        
+    # get category with group names
+    groups_ids = get_categories(user_data)
+    
+    # convert logic to groups
+    index_df = convert_logicdf_to_groups(index_df, logic_index_df, groups_ids)
                          
-    return pd.DataFrame(index)
+    return index_df
             
-            
+
+
+        
 
 if __name__ == '__main__':
     
@@ -204,6 +269,8 @@ if __name__ == '__main__':
     # remove rows with no source
     user_data = user_data[user_data.Source != '']
     
+    # check that assigned group name is unique
+    
     
     # get channel order
     channel_order = string_filters.get_channel_order(user_data)
@@ -211,7 +278,7 @@ if __name__ == '__main__':
     # get all file data in dataframe
     file_data = get_file_data(folder_path, channel_order)
     
-    df = create_index_array(file_data, user_data)
+    index_df = create_index_array(file_data, user_data)
     
     # comdf = add_comments_to_index(file_data, user_data)
     
