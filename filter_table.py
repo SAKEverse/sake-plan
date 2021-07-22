@@ -73,7 +73,8 @@ def get_categories(user_data):
 
 def reverse_hot_encoding(sort_df):
     """
-    Reverse hot coding in dataframe and replace with
+    Reverse hot coding in dataframe and replace with column names or nan
+    
 
     Parameters
     ----------
@@ -88,12 +89,22 @@ def reverse_hot_encoding(sort_df):
     # get columns
     labels = np.array(sort_df.columns)
     
-    # find index where column is True
-    idx = np.argmax(np.array(sort_df), axis = 1)
+    # find index where column is True #np.argmax(np.array(sort_df), axis = 1)
+    idx_array = np.array(sort_df)
+    col_labels = np.zeros(len(sort_df), dtype=object)
     
-    # map columns to index
-    col_labels = np.array(list(map(labels.item, idx)))  
-    
+    for i in range(idx_array.shape[0]): # iterate over idx_array
+        
+        # find which column
+        idx = np.where(idx_array[i] == True)[0]
+        
+        if len(idx) == 0:       # if no True value present
+            col_labels[i] = np.NaN
+        elif  len(idx) > 1:     # if more than one True value present
+            col_labels[i] = np.NaN
+        elif len(idx) == 1:     # if no True value present
+            col_labels[i] = labels[idx[0]]
+            
     return col_labels
     
 
@@ -126,9 +137,87 @@ def convert_logicdf_to_groups(index_df, logic_index_df, groups_ids:dict):
                 index_df[category] = reverse_hot_encoding(logic_index_df[groups])
                 
     return index_df
+
+    
+def get_source_logic(user_data, source:str):
+    """
+    Find which unique groups exist and return as dataframe
+
+    Parameters
+    ----------
+    user_data : pd.DataFrame
+    source : str, source destination
+
+    Returns
+    -------
+    index : pd.DataFrame
+
+    """
+    
+    # get only user data form source
+    user_data = user_data[user_data['Source'] == source].reset_index()
+    
+    index = {}
+    for i in range(len(user_data)): # iterate over user data entries       
+                
+        # find index for specified source and match string
+        idx = getattr(string_filters, user_data.at[i, 'Search Function'])(file_data[source], user_data.at[i, 'Search Value'])                              
+        
+        # append to index dictionary                
+        index.update({user_data.at[i, 'Assigned Group Name']: idx})
+        
+    return pd.DataFrame(index)
     
     
+
+def create_index_array(file_data, user_data):
+    """
+    Create boolean index array for each search value
+
+    Parameters
+    ----------
+    file_data : pd.DataFrame, aggregated data from labchart files
+    user_data : pd.DataFrame, user search and grouping parameters
+
+    Returns
+    -------
+    index_df: pd.DataFrame, with index
+
+    """
     
+    # create empty dataframe
+    logic_index_df = pd.DataFrame()
+    
+    # create sources list
+    sources = ['channel_name', 'file_name']
+    
+    for source in sources: # iterate over user data entries  
+        
+        # find which groups exist in which files in each source
+        df = get_source_logic(user_data, source)
+        
+        # concatenate with index
+        logic_index_df = pd.concat([logic_index_df, df], axis=1)
+    
+    # create empty dataframe for index
+    index_df = pd.DataFrame()
+               
+    # add columns from file to data
+    add_columns = ['file_name', 'channel_id', 'block' ,'brain_region',  'file_length']
+    index_df = pd.concat([index_df, file_data[add_columns]], axis=1)
+        
+    # get category with group names
+    groups_ids = get_categories(user_data)
+    
+    # convert logic to groups
+    index_df = convert_logicdf_to_groups(index_df, logic_index_df, groups_ids)
+    
+    # get time and comments
+    # index_df = get_commens_and_time(index_df)
+                         
+    return index_df
+            
+
 
 def add_comments_to_index(file_data, user_data, fs = 4000):
     
@@ -196,62 +285,6 @@ def add_comments_to_index(file_data, user_data, fs = 4000):
         
     
     return com_text_df
-     
-        
-             
-
-def create_index_array(file_data, user_data):
-    """
-    Create boolean index array for each search value
-
-    Parameters
-    ----------
-    file_data : pd.DataFrame, aggregated data from labchart files
-    user_data : pd.DataFrame, user search and grouping parameters
-
-    Returns
-    -------
-    index_df: pd.DataFrame, with index
-
-    """
-    
-
-    # create sources list
-    sources = ['channel_name', 'file_name']
-    
-    index = {} # create empty dictionary to store index from search
-    
-    for i in range(len(user_data)): # iterate over user data entries       
-        for source in sources: # iterate over source types    
-
-            if user_data.at[i, 'Source'] in source: # check if source matches user data
-                
-                # find index for specified source and match string
-                idx = getattr(string_filters, user_data.at[i, 'Search Function'])(file_data[source], user_data.at[i, 'Search Value'])                              
-                
-                # append to index dictionary                
-                index.update({user_data.at[i, 'Assigned Group Name']: idx}) 
-    
-    
-    # convert to dataframe
-    logic_index_df = pd.DataFrame(index)
-    
-    # create empty dataframe for index
-    index_df = pd.DataFrame()
-               
-    # add columns
-    add_columns = ['file_name', 'channel_id', 'block' ,'brain_region',  'file_length']
-    for col in add_columns:
-        index_df[col] = file_data[col]   
-        
-    # get category with group names
-    groups_ids = get_categories(user_data)
-    
-    # convert logic to groups
-    index_df = convert_logicdf_to_groups(index_df, logic_index_df, groups_ids)
-                         
-    return index_df
-            
 
 
         
