@@ -2,9 +2,10 @@
 channel_order,order,1,bla,region,all
 channel_order,order,2,pfc,region,all
 channel_order,order,3,emg,region,all
-channel_name,contains,m,male,sex,all
-file_name,startswith,f,female,sex,all
-channel_name,contains,cus,cus,stressor,all
+channel_name,contains,m_,male,sex,all
+channel_name,contains,f_,female,sex,all
+channel_name,startswith,cus,cus,stressor,all
+file_name,endswith,ko,knockout,genotype,all
 file_name,endswith,wt,wildtype,genotype,all
 comment_text,contains,veh,baseline,treatment,-20:-1
 comment_text,contains,veh,vehicle,treatment,1:30
