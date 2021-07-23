@@ -124,7 +124,10 @@ class GetComments:
             
             # pass to dataframe
             index_df[self.user_data.at[i, 'Assigned Group Name']] = com_label
-        
+            
+            if index_df.any(axis=1).all() == False: # check if at least one condition is present in each group
+                raise('Comments were not detected in all files')
+                
         
         print('test')
     
