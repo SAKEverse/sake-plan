@@ -8,4 +8,5 @@ channel_name,startswith,cus,cus,stressor,all
 file_name,endswith,ko,knockout,genotype,all
 file_name,endswith,wt,wildtype,genotype,all
 comment_text,contains,veh,baseline,treatment,-20:-1
-comment_text,contains,veh,vehicle,treatment,1:30
+comment_text,contains,odor,vehicle,treatment,-20:-1
+comment_text,contains,odor,predator_odor,treatment,1:30
