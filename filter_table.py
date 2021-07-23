@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from adi_parse import AdiParse
 import string_filters
+from get_comments import GetComments
 
 @beartype
 def get_file_data(folder_path:str, channel_order:list):
@@ -43,6 +44,44 @@ def get_file_data(folder_path:str, channel_order:list):
     file_data = file_data.apply(lambda x: x.astype(str).str.lower())
     
     return file_data
+
+def get_channel_order(user_data):
+    """
+    Get channel order from user data
+
+    Parameters
+    ----------
+    user_data : Dataframe with user data
+
+    Returns
+    -------
+    order : List with channels in order
+
+    """
+    
+    # get data containing channel order
+    channel_order = user_data[user_data['Source'] == 'channel_order']
+    
+    # sort by order number
+    channel_order = channel_order.sort_values(by=['Search Value'])
+    
+    # get order and channel names in 
+    order = list(channel_order['Search Value'])
+    regions = list(channel_order['Assigned Group Name'])
+    
+    # find integers
+    integers = [s for s in order if s.isdigit()]
+    
+    if len(order) != len(integers):
+        raise('Channel order option accepts only integers. e.g.: 1,2,3')
+        
+    if len(order) != len(regions):
+        raise('Each group name requires an order number')
+        
+    if len(set(order)) != len(order):
+        raise('Each number in channel order must be unique. Got:', order, 'instead')
+        
+    return regions
 
 
 def get_categories(user_data):
@@ -102,7 +141,7 @@ def reverse_hot_encoding(sort_df):
             col_labels[i] = np.NaN
         elif  len(idx) > 1:     # if more than one True value present
             col_labels[i] = np.NaN
-        elif len(idx) == 1:     # if no True value present
+        elif len(idx) == 1:     # if one True value present
             col_labels[i] = labels[idx[0]]
             
     return col_labels
@@ -185,8 +224,9 @@ def create_index_array(file_data, user_data):
 
     """
     
-    # create empty dataframe
+    # create empty dataframes for storage
     logic_index_df = pd.DataFrame()
+    index_df = pd.DataFrame()
     
     # create sources list
     sources = ['channel_name', 'file_name']
@@ -198,10 +238,7 @@ def create_index_array(file_data, user_data):
         
         # concatenate with index
         logic_index_df = pd.concat([logic_index_df, df], axis=1)
-    
-    # create empty dataframe for index
-    index_df = pd.DataFrame()
-               
+            
     # add columns from file to data
     add_columns = ['file_name', 'channel_id', 'block' ,'brain_region',  'file_length']
     index_df = pd.concat([index_df, file_data[add_columns]], axis=1)
@@ -213,81 +250,13 @@ def create_index_array(file_data, user_data):
     index_df = convert_logicdf_to_groups(index_df, logic_index_df, groups_ids)
     
     # get time and comments
-    # index_df = get_commens_and_time(index_df)
+    obj = GetComments(file_data, user_data, 'comment_text', 'comment_time')
+    df = obj.add_comments_to_index()
+    # index_df = pd.concat([index_df, df], axis=1)
                          
     return index_df
-            
-
-
-def add_comments_to_index(file_data, user_data, fs = 4000):
+ 
     
-    # string to fetch columns
-    comment_text = 'comment_text'
-    comment_time = 'comment_time'
-    
-    # get file data column names
-    comment_text_cols = list(file_data.columns[file_data.columns.str.contains(comment_text)])
-    comment_time_cols = list(file_data.columns[file_data.columns.str.contains(comment_time)])
-    com = dict(zip(comment_text_cols, comment_time_cols))
-    
-    # get user data containing comment text
-    user_com_text = user_data[user_data['Source'] == comment_text].reset_index()
-    
-    # create empty arrays
-    index = {}
-    index_text = {} # create empty dictionary to store index from search
-    index_time = {} # create empty dictionary to store time for each comment
-    
-    for i in range(len(user_com_text)): # user comment groups
-    
-        for comtext,comtime in com.items(): # file comments
-                
-            # find index for specified source and match string
-            idx = getattr(string_filters, user_com_text.at[i, 'Search Function'])(file_data[comtext], user_com_text.at[i, 'Search Value'])
-            
-            index_text.update({comtext:idx})
-            index_time.update({comtime:file_data[comtime]})
-            
-        # create dataframe
-        com_text_df = pd.DataFrame(index_text) 
-        com_time_array = np.array(pd.DataFrame(index_time))
-        if np.any(np.all(com_text_df,axis=1)) == True:
-            print('more than one comment present')
-        else:
-            
-            # get comment times
-            user_time = user_com_text.at[i, 'Time Selection (min)'].split(':')
-            user_time = np.array([int(x) for x in user_time])* fs*60
-            
-            # get comment index
-            com_idx = np.argmax(np.array(com_text_df), axis = 1)
-            idx = np.zeros((com_idx.shape[0],2))
-            
-            for ii in range(len(com_text_df)):
-                
-                # get index of where comment was detected
-                idx_one = np.where(com_text_df.iloc[ii,:] == True)[0]
-                               
-                if len(idx_one) == 0: # if no comment was detected
-                    idx[ii] = file_data['file_length'][ii]
-                else:
-                    idx[ii,:] = int(float(com_time_array[ii,idx_one[0]])) + user_time
-                               
-            # add comment to index
-            index.update({user_data.at[i, 'Assigned Group Name']: idx})
-            
-    
-    # for i in len(com_text_df):
-        
-        # com_text_df.at[i,'time'] = com_time_array[np.array(com_text_df)]
-    
-    # #
-        
-    
-    return com_text_df
-
-
-        
 
 if __name__ == '__main__':
     
@@ -306,7 +275,7 @@ if __name__ == '__main__':
     
     
     # get channel order
-    channel_order = string_filters.get_channel_order(user_data)
+    channel_order = get_channel_order(user_data)
     
     # get all file data in dataframe
     file_data = get_file_data(folder_path, channel_order)
