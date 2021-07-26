@@ -221,7 +221,9 @@ class GetComments:
         # drop nans
         index_df = index_df.dropna(axis='columns')
         
-        return index_df, index_df.columns[index_df.columns.get_loc('stop_time')+1:]
+        group_names = list(index_df.columns[index_df.columns.get_loc('stop_time')+1:])
+        
+        return index_df, group_names + ['brain_region']
         
     
     

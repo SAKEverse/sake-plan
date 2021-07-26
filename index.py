@@ -96,7 +96,7 @@ def update_output(n_clicks, folder_path, user_data):
     try:
 
         # get grouped dataframe
-        df, group_names = get_index_array(folder_path, user_data) 
+        df, group_names = get_index_array(folder_path, user_data);
 
         # Get tree plot as dcc graph
         graph = dcc.Graph(id = 'tree_structure', figure =  drawSankey(df[group_names]))
