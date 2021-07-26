@@ -45,6 +45,20 @@ def get_file_data(folder_path:str, channel_order:list):
     
     return file_data
 
+# def get_user_data(user_table): ### G
+    
+#     # get user table data example
+#     user_data = pd.read_csv(file_path)
+    
+#     # convert data frame to lower case
+#     user_data = user_data.apply(lambda x: x.astype(str).str.lower())
+    
+#     # remove rows with no source
+#     user_data = user_data[user_data.Source != '']
+    
+#     # check that assigned group name is unique
+
+
 def get_channel_order(user_data):
     """
     Get channel order from user data
@@ -178,7 +192,7 @@ def convert_logicdf_to_groups(index_df, logic_index_df, groups_ids:dict):
     return index_df
 
     
-def get_source_logic(user_data, source:str):
+def get_source_logic(file_data, user_data, source:str):
     """
     Find which unique groups exist and return as dataframe
 
@@ -211,7 +225,7 @@ def get_source_logic(user_data, source:str):
 
 def create_index_array(file_data, user_data):
     """
-    Create boolean index array for each search value
+    Create index for experiments according to user selection
 
     Parameters
     ----------
@@ -234,14 +248,18 @@ def create_index_array(file_data, user_data):
     for source in sources: # iterate over user data entries  
         
         # find which groups exist in which files in each source
-        df = get_source_logic(user_data, source)
+        df = get_source_logic(file_data, user_data, source)
         
         # concatenate with index
         logic_index_df = pd.concat([logic_index_df, df], axis=1)
             
     # add columns from file to data
-    add_columns = ['file_name', 'channel_id', 'block' ,'brain_region',  'file_length']
+    add_columns = ['file_name', 'channel_id', 'block' ,'brain_region', 'sampling_rate']
     index_df = pd.concat([index_df, file_data[add_columns]], axis=1)
+    
+    # get time
+    index_df['start_time'] = 0
+    index_df['stop_time'] = file_data['file_length']
         
     # get category with group names
     groups_ids = get_categories(user_data)
@@ -251,28 +269,26 @@ def create_index_array(file_data, user_data):
     
     # get time and comments
     obj = GetComments(file_data, user_data, 'comment_text', 'comment_time')
-    df = obj.add_comments_to_index()
-    # index_df = pd.concat([index_df, df], axis=1)
-                         
+    index_df = obj.add_comments_to_index(index_df)
+                     
     return index_df
  
-    
+def get_index_array(folder_path, user_data):
+    """
+    Get file data, channel array and create index
+    for experiments according to user selection
 
-if __name__ == '__main__':
-    
-    
-    # define path
-    folder_path = r'C:\Users\panton01\Desktop\example_files'
-    
-    # get user table data example
-    user_data = pd.read_csv('example_data/default_table_data.csv')
-    # convert data frame to lower case
-    user_data = user_data.apply(lambda x: x.astype(str).str.lower())
-    # remove rows with no source
-    user_data = user_data[user_data.Source != '']
-    
-    # check that assigned group name is unique
-    
+    Parameters
+    ----------
+    file_data : pd.DataFrame, aggregated data from labchart files
+    user_data : pd.DataFrame, user search and grouping parameters
+
+    Returns
+    -------
+    index_df: pd.DataFrame, with index
+
+    """
+
     
     # get channel order
     channel_order = get_channel_order(user_data)
@@ -280,9 +296,31 @@ if __name__ == '__main__':
     # get all file data in dataframe
     file_data = get_file_data(folder_path, channel_order)
     
+    # get index datframe
     index_df = create_index_array(file_data, user_data)
     
-    # comdf = add_comments_to_index(file_data, user_data)
+    return index_df
+
+if __name__ == '__main__':
+    
+    
+    # define path
+    folder_path = r'C:\Users\panton01\Desktop\example_files'
+    
+
+    # get user table data example
+    user_data = pd.read_csv('example_data/default_table_data.csv')
+    
+    # convert data frame to lower case
+    user_data = user_data.apply(lambda x: x.astype(str).str.lower())
+    
+    # remove rows with no source
+    user_data = user_data[user_data.Source != '']
+
+    # get experiment index
+    index_df = get_index_array(folder_path, user_data)
+    
+
     
     
     

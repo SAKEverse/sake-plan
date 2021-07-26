@@ -5,11 +5,9 @@ Created on Fri Jul 23 10:59:45 2021
 @author: panton01
 """
 
-from beartype import beartype
 import numpy as np
 import pandas as pd
 import string_filters
-
 
 
 def get_index_file_com(com_logic_df, time_array, label):
@@ -55,9 +53,12 @@ def get_index_file_com(com_logic_df, time_array, label):
 
 
 class GetComments:
+    """
+    Get experiment index from user comments and groups
+    """
     
     
-    def __init__(self, file_data, user_data, comment_text, comment_time, fs = 4000):
+    def __init__(self, file_data, user_data, comment_text, comment_time):
 
         
         # pass to object
@@ -70,8 +71,7 @@ class GetComments:
         self.com_match = dict(zip(self.com_text_cols, self.com_time_cols))
         
         # pass file data to object
-        self.file_data = file_data
-        self.fs = fs
+        self.file_data = file_data    
         
         # get user data containing comment text
         self.user_data = user_data[user_data['Source'] == self.comment_text].reset_index()
@@ -99,71 +99,89 @@ class GetComments:
         return com_df
 
 
-
     
-    def add_coms_to_index(df):
-        print('test')
+    def add_comments_to_index(self, index_df): # for one category
         
         
-    
-    
-    def add_comments_to_index(self):
-        
-        
+        # get category
+        category =self.user_data['Category'].unique()[0]
+         
         # create empty arrays
-        index_df = pd.DataFrame()
-            
+        index_com = pd.DataFrame()
+        index_time =  pd.DataFrame()
+        
+        # create array for full
+        full_df = pd.DataFrame(columns = list(index_df.columns) + [category])
+         
+        # per comment group
         for i in range(len(self.user_data)): # iterate over user comment groups
             
             # get logic from all File comments
             com_df = self.get_index_per_comment(i)
                         
             # combine File logic
-            text = com_df[self.com_text_cols]; time = com_df[self.com_time_cols]
+            text = com_df[self.com_text_cols] 
+            time = com_df[self.com_time_cols]
             com_label, com_time = get_index_file_com(text, time, self.user_data.at[i, 'Search Value'])
             
             # pass to dataframe
-            index_df[self.user_data.at[i, 'Assigned Group Name']] = com_label
+            index_com[self.user_data.at[i, 'Assigned Group Name']] = com_label
+            index_time[self.user_data.at[i, 'Assigned Group Name']] = com_time
+               
+         # check if at least one condition is present in each experiment pooled from one group    
+        if index_com.any(axis=1).all() == False:
+            return 'Comments were not detected in all files'
+        
+        # add comments to main df
+        for i,comment in enumerate(index_com):
             
-            if index_df.any(axis=1).all() == False: # check if at least one condition is present in each group
-                raise('Comments were not detected in all files')
-                
-        
-        print('test')
-    
-    
-    
-    
-    
-    
-            # get comment times
-        # user_time = user_com_text.at[i, 'Time Selection (min)'].split(':')
-        # user_time = np.array([int(x) for x in user_time])* fs*60
-        
-        # # get comment index
-        # com_idx = np.argmax(np.array(com_text_df), axis = 1)
-        # idx = np.zeros((com_idx.shape[0],2))
-        
-        # for ii in range(len(com_text_df)):
+            # get comment index
+            com_idx = index_com[comment]
             
-        #     # get index of where comment was detected
-        #     idx_one = np.where(com_text_df.iloc[ii,:] == True)[0]
-                           
-        #     if len(idx_one) == 0: # if no comment was detected
-        #         idx[ii] = file_data['file_length'][ii]
-        #     else:
-        #         idx[ii,:] = int(float(com_time_array[ii,idx_one[0]])) + user_time
-                           
-        # add comment to index
-        # index.update({user_data.at[i, 'Assigned Group Name']: idx})
+            # get categories were comment is present
+            temp_df = index_df[com_idx].copy()
+            temp_df.at[:,category] = comment
+            
+            ## get labchart read index ##
+               
+            # get user selection
+            user_time = self.user_data.at[i, 'Time Selection (min)'].split(':')
+            user_time = np.array([int(x) for x in user_time]) *60 # convert to seconds
+            
+            # add to comment time
+            fs = np.array(index_df['sampling_rate'][com_idx], dtype = float)                    # convert sampling rate form string to float
+            temp_df.at[:,'start_time'] = index_time[comment][com_idx] + (user_time[0] * fs)     # get start time
+            temp_df.at[:,'stop_time'] = index_time[comment][com_idx] + (user_time[1] * fs)      # get stop time
+            
+            # append to full dataframe
+            full_df = full_df.append(temp_df)
+        
+        # reset index
+        full_df = full_df.reset_index()    
+        return full_df
         
     
-    # for i in len(com_text_df):
-        
-        # com_text_df.at[i,'time'] = com_time_array[np.array(com_text_df)]
     
-    # #
-
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
         

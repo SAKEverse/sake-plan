@@ -100,7 +100,7 @@ class AdiParse:
         cols = {'channel_id', 'channel_name'}
 
         # create empty dataframe
-        df = pd.DataFrame(data = np.zeros((self.n_channels, len(cols))), columns = cols, dtype = 'string')
+        df = pd.DataFrame(data = np.zeros((self.n_channels, len(cols))), columns = cols, dtype = 'object')
         
         # iterate over channels and get names
         for ch in range(self.n_channels):
@@ -252,6 +252,9 @@ class AdiParse:
         df : pd.DataFrame
 
         """
+        
+        # read labchart file
+        adi_obj = self.read_labchart_file()
         
         # get sampling rate
         for i in range(len(df)):
