@@ -56,8 +56,9 @@ class AdiParse:
         self.n_channels = adi_obj.n_channels
         
         # Get file length
-        self.file_length = int(block_len[self.block])        
-        
+        self.file_length = int(block_len[self.block]) 
+               
+        # get channel order
         if len(channel_order) == 0:
             self.channel_order = 'Brain regions were not found'
         elif self.n_channels%len(channel_order) != 0:
@@ -238,6 +239,26 @@ class AdiParse:
             
         return df
     
+    def add_sampling_rate(self, df):
+        """
+        Add sampling rate to channels in dataframe
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+
+        Returns
+        -------
+        df : pd.DataFrame
+
+        """
+        
+        # get sampling rate
+        for i in range(len(df)):
+            df.at[i,'sampling_rate'] = int(1/adi_obj.channels[i].tick_dt[self.block])
+            
+        return df
+            
     
     def get_all_file_properties(self):
         """
@@ -267,6 +288,9 @@ class AdiParse:
         
         # add file length
         df = self.add_block(df)
+        
+        # add sampling rate
+        df = self.add_sampling_rate(df)
          
         return df
             
@@ -287,7 +311,6 @@ class AdiParse:
         Raises
         ------
         FileNotFoundError
-            DESCRIPTION.
 
         Returns
         -------
@@ -346,12 +369,12 @@ class AdiParse:
 
 if __name__ == '__main__':
     
-    file_path = r'C:\Users\panton01\Desktop\example_files\#3animal_sdsda_wt_two.adicht'
+    file_path = r'C:\Users\panton01\Desktop\example_files\#3animal_sdsda_wt.adicht'
     channel_order = ['Bla', 'Hipp', 'Emg']
     # initiate object      
     adi_parse= AdiParse(file_path, channel_order)
     
-    # adi_obj = adi_parse.read_labchart_file()
+    adi_obj = adi_parse.read_labchart_file()
     
     df =  adi_parse.get_all_file_properties()
     
