@@ -87,13 +87,13 @@ def get_channel_order(user_data):
     integers = [s for s in order if s.isdigit()]
     
     if len(order) != len(integers):
-        raise('Channel order option accepts only integers. e.g.: 1,2,3')
+        raise Exception('Channel order option accepts only integers. e.g.: 1,2,3')
         
     if len(order) != len(regions):
-        raise('Each group name requires an order number')
+        raise Exception('Each group name requires an order number')
         
     if len(set(order)) != len(order):
-        raise('Each number in channel order must be unique. Got:', order, 'instead')
+        raise Exception('Each number in channel order must be unique. Got:', order, 'instead')
         
     return regions
 
@@ -235,7 +235,7 @@ def create_index_array(file_data, user_data):
     Returns
     -------
     index_df: pd.DataFrame, with index
-
+    group_columns: list, column names that denote groups
     """
     
     # create empty dataframes for storage
@@ -254,7 +254,7 @@ def create_index_array(file_data, user_data):
         logic_index_df = pd.concat([logic_index_df, df], axis=1)
             
     # add columns from file to data
-    add_columns = ['file_name', 'channel_id', 'block' ,'brain_region', 'sampling_rate']
+    add_columns = ['file_name', 'channel_id', 'block' , 'sampling_rate', 'brain_region']
     index_df = pd.concat([index_df, file_data[add_columns]], axis=1)
     
     # get time
@@ -267,12 +267,13 @@ def create_index_array(file_data, user_data):
     # convert logic to groups
     index_df = convert_logicdf_to_groups(index_df, logic_index_df, groups_ids)
     
-    # get time and comments
+    # get time and comments ( # check when no comments are present)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     obj = GetComments(file_data, user_data, 'comment_text', 'comment_time')
-    index_df = obj.add_comments_to_index(index_df)
+    index_df, group_columns = obj.add_comments_to_index(index_df)
                      
-    return index_df
- 
+    return index_df, group_columns
+
+
 def get_index_array(folder_path, user_data):
     """
     Get file data, channel array and create index
@@ -281,14 +282,25 @@ def get_index_array(folder_path, user_data):
     Parameters
     ----------
     file_data : pd.DataFrame, aggregated data from labchart files
-    user_data : pd.DataFrame, user search and grouping parameters
+    user_data : 2D list, user search and grouping parameters from datatable
 
     Returns
     -------
     index_df: pd.DataFrame, with index
+    group_columns: list, column names that denote groups
 
     """
-
+    
+    # get dataframe and convert to lower case
+    user_data = pd.DataFrame(user_data)
+    user_data = user_data.apply(lambda x: x.astype(str).str.lower())
+        
+    # remove rows with missing inputs
+    user_data = user_data.dropna(axis = 0)
+    
+    # ensure group names are unique
+    if len(user_data['Assigned Group Name']) != len(user_data['Assigned Group Name'].unique()):
+        raise Exception('Duplicate -Assigned Group Names- were found. Please check that -Assigned Group Names- are unique')
     
     # get channel order
     channel_order = get_channel_order(user_data)
@@ -297,9 +309,9 @@ def get_index_array(folder_path, user_data):
     file_data = get_file_data(folder_path, channel_order)
     
     # get index datframe
-    index_df = create_index_array(file_data, user_data)
+    index_df, group_columns = create_index_array(file_data, user_data)
     
-    return index_df
+    return index_df, group_columns
 
 if __name__ == '__main__':
     
@@ -307,7 +319,6 @@ if __name__ == '__main__':
     # define path
     folder_path = r'C:\Users\panton01\Desktop\example_files'
     
-
     # get user table data example
     user_data = pd.read_csv('example_data/default_table_data.csv')
     
@@ -316,9 +327,15 @@ if __name__ == '__main__':
     
     # remove rows with no source
     user_data = user_data[user_data.Source != '']
+    
+    # get channel order
+    channel_order = get_channel_order(user_data)
+    
+    # get all file data in dataframe
+    file_data = get_file_data(folder_path, channel_order)
 
     # get experiment index
-    index_df = get_index_array(folder_path, user_data)
+    index_df, group_columns = create_index_array(file_data, user_data)
     
 
     

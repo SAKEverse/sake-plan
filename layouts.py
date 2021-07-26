@@ -17,6 +17,9 @@ layout1 =  html.Div(id = 'layout_channel', children=[
             html.Button('Generate', id='generate_button', n_clicks=0,   
             ),]),
 
+        html.Div(id = 'export_div', children=[
+            dcc.Download(id='download_dataframe_csv') ]),
+
         html.Div(id='data_path_main_div', 
             children = [ 
                 dcc.Input(id='data_path_input', type='text', placeholder='Path to data folder'),
@@ -51,6 +54,8 @@ layout1 =  html.Div(id = 'layout_channel', children=[
      html.Div( id='add_row_button_div', children=[
             html.Button('Add row', id='add_row_button', n_clicks=0,   
             ),]),
+    # tree group diagram
+     html.Div(id='tree_plot_div', children=[])
 
 ])
 

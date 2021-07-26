@@ -16,6 +16,7 @@ from layouts import layout1
 from adi_parse import AdiParse
 from create_user_table import dashtable
 from tree import drawSankey
+from filter_table import get_index_array
 # import callbacks
 ### ----------------------------------------------------------------- ###
 
@@ -79,30 +80,31 @@ def colony_update(n_clicks, json_data):
     return dash_cols, df.to_dict('records'), True, drop_dict
 
 
-# # Retrieve path and plot tree diagram
-# @app.callback(
-#     [Output('out_all_types', 'children'),
-#      Output('tree_plot_div', 'children')],
-#     [Input('generate_button', 'n_clicks')],
-#     [State('data_path_input', 'value')],
-# )
-# def update_output(n_clicks, folder_path):
+# Retrieve path and plot tree diagram
+@app.callback(
+    [Output('out_all_types', 'children'),
+     Output('tree_plot_div', 'children'),
+     Output('download_dataframe_csv', 'data')],
+    [Input('generate_button', 'n_clicks')],
+    [State('data_path_input', 'value'),
+    State('user_table', 'data')],
+)
+def update_output(n_clicks, folder_path, user_data):
 
-#     if folder_path is None:
-#         folder_path = 'empty'
-#     try:
-#         # initiate object        
-#         adi_read = AdiParse(folder_path)
+    if folder_path is None:
+        folder_path = 'empty'
+    try:
 
-#         # get grouped dataframe
-#         df, unique_groups = adi_read.get_unique_conditions()
+        # get grouped dataframe
+        df, group_names = get_index_array(folder_path, user_data) 
 
-#         # Get sankey plot as dcc graph
-#         graph = dcc.Graph(id = 'tree_structure', figure =  drawSankey(df))
+        # Get tree plot as dcc graph
+        graph = dcc.Graph(id = 'tree_structure', figure =  drawSankey(df[group_names]))
 
-#     except Exception as err:
-#         return 'Got ' + str(folder_path) + ': ' + str(err)
-#     return str(folder_path), graph
+    except Exception as err:
+        return 'Got ' + str(folder_path) + ': ' + str(err)
+        
+    return str(folder_path), graph, dcc.send_data_frame(df.to_csv, 'index.csv')
 
 
 if __name__ == '__main__':
