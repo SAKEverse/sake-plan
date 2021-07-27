@@ -32,14 +32,16 @@ def get_file_data(folder_path:str, channel_order:list):
         adi_parse= AdiParse(os.path.join(folder_path, file), channel_order)
         
         # get all file data in dataframe
-        temp = adi_parse.get_all_file_properties()
+        temp_file_data = adi_parse.get_all_file_properties()
+        
+        # add folder path
+        temp_file_data['folder_path'] = folder_path 
         
         if i == 0:
-            file_data = temp         
+            file_data = temp_file_data         
         else:  
-            file_data = file_data.append(temp, ignore_index = True)
+            file_data = file_data.append(temp_file_data, ignore_index = True)
             
-     
     # convert data frame to lower case
     file_data = file_data.apply(lambda x: x.astype(str).str.lower())
     
