@@ -45,19 +45,6 @@ def get_file_data(folder_path:str, channel_order:list):
     
     return file_data
 
-# def get_user_data(user_table): ### G
-    
-#     # get user table data example
-#     user_data = pd.read_csv(file_path)
-    
-#     # convert data frame to lower case
-#     user_data = user_data.apply(lambda x: x.astype(str).str.lower())
-    
-#     # remove rows with no source
-#     user_data = user_data[user_data.Source != '']
-    
-#     # check that assigned group name is unique
-
 
 def get_channel_order(user_data):
     """
@@ -269,7 +256,15 @@ def create_index_array(file_data, user_data):
     
     # get time and comments ( # check when no comments are present)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     obj = GetComments(file_data, user_data, 'comment_text', 'comment_time')
-    index_df, group_columns = obj.add_comments_to_index(index_df)
+    index_df = obj.add_comments_to_index(index_df)
+    
+    # check if groups were not detected
+    if index_df.isnull().values.any():
+        nan_cols = str(list(index_df.columns[index_df.isna().any()]))
+        raise Exception('Some conditons were not detected in the following column(s): ' + nan_cols)
+    
+    # get added group names based on user input
+    group_columns = list(index_df.columns[index_df.columns.get_loc('stop_time')+1:]) + ['brain_region']
                      
     return index_df, group_columns
 

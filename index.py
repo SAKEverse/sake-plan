@@ -93,9 +93,8 @@ def colony_update(n_clicks, json_data):
 def update_output(n_clicks, folder_path, user_data):
 
     try:
-        if folder_path is None:
-            
-            warning = None
+        if folder_path is None:         
+            # warning = None
             fig = None
             data = None
         else:
@@ -109,11 +108,11 @@ def update_output(n_clicks, folder_path, user_data):
             # send index_df for download
             data = dcc.send_data_frame(index_df.to_csv, 'index.csv')
 
-            warning = dbc.Alert(id = 'alert_message', children = [str(folder_path)], color="warning", dismissable=True, duration = 5000)
-        return warning, fig, data
+            # warning = dbc.Alert(id = 'alert_message', children = [str(folder_path)], color="warning", dismissable=True, duration = 5000)
+        return None, fig, data
 
     except Exception as err:
-        warning = dbc.Alert(id = 'alert_message', children = [str(err)], color="warning", dismissable=True, duration = 5000)
+        warning = dbc.Alert(id = 'alert_message', children = [str(err)], color="warning", dismissable=True, duration = 10000)
         return warning, None, None
         
     

@@ -13,7 +13,7 @@ layout1 =  html.Div(id = 'layout_channel', children=[
 
     # 0- alers
     html.Div(id = 'alert_div', children =[ # show warnings
-        dbc.Alert(id = 'alert_message',color="warning", dismissable=True), #, duration = 5000
+        
     ]),
 
     # 1- generate button + field div
