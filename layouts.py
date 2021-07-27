@@ -1,4 +1,5 @@
 import dash_core_components as dcc
+import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table
 import dash_daq as daq
@@ -10,21 +11,25 @@ layout1 =  html.Div(id = 'layout_channel', children=[
 
     dcc.Store(id='user_df', storage_type = 'session'),
 
+    # 0- alers
+    html.Div(id = 'alert_div', children =[ # show warnings
+        dbc.Alert(id = 'alert_message',color="warning", dismissable=True), #, duration = 5000
+    ]),
+
     # 1- generate button + field div
     html.Div(id='generate_plus_field_div', children=[
+
+        html.Div(id = 'export_div', children=[ # invisible (used for export)
+            dcc.Download(id='download_dataframe_csv') ]),
 
         html.Div( id='generate_div', children=[
             html.Button('Generate', id='generate_button', n_clicks=0,   
             ),]),
 
-        html.Div(id = 'export_div', children=[
-            dcc.Download(id='download_dataframe_csv') ]),
-
-        html.Div(id='data_path_main_div', 
-            children = [ 
-                dcc.Input(id='data_path_input', type='text', placeholder='Path to data folder'),
-                html.Div(id='out_all_types'),
+        html.Div(id='data_path_main_div', children = [ 
+            dcc.Input(id='data_path_input', type='text', placeholder='Path to data folder'),
         ]),
+
     ]),
 
 
@@ -54,8 +59,10 @@ layout1 =  html.Div(id = 'layout_channel', children=[
      html.Div( id='add_row_button_div', children=[
             html.Button('Add row', id='add_row_button', n_clicks=0,   
             ),]),
+
     # tree group diagram
-     html.Div(id='tree_plot_div', children=[])
+     html.Div(id='tree_plot_div', children=[
+     ]),
 
 ])
 

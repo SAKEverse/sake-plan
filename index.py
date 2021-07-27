@@ -13,6 +13,7 @@ from flask import session
 # User Defined #
 from app import app
 from layouts import layout1
+import dash_bootstrap_components as dbc
 from adi_parse import AdiParse
 from create_user_table import dashtable
 from tree import drawSankey
@@ -22,7 +23,7 @@ from filter_table import get_index_array
 
 
 # init dash app with css style sheets
-app = dash.Dash(__name__ , external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'] )
+app = dash.Dash(__name__ , external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.server.secret_key = os.urandom(24)
 
 # Define main layout
@@ -64,10 +65,10 @@ def colony_update(n_clicks, json_data):
         # get default dataframe
         df = pd.read_csv(user_table_path)
     else:
-        # get data in dash table format
+        # get data from user datatable
         df = pd.read_json(json_data, orient='split')
 
-    # get data in dashtable format
+    # conver user data in dashtable format
     dash_cols, df, drop_dict = dashtable(df) 
 
     if n_clicks > 0: # Add rows when button is clicked
@@ -82,7 +83,7 @@ def colony_update(n_clicks, json_data):
 
 # Retrieve path and plot tree diagram
 @app.callback(
-    [Output('out_all_types', 'children'),
+    [Output('alert_div', 'children'),
      Output('tree_plot_div', 'children'),
      Output('download_dataframe_csv', 'data')],
     [Input('generate_button', 'n_clicks')],
@@ -91,20 +92,31 @@ def colony_update(n_clicks, json_data):
 )
 def update_output(n_clicks, folder_path, user_data):
 
-    if folder_path is None:
-        folder_path = 'empty'
     try:
+        if folder_path is None:
+            
+            warning = None
+            fig = None
+            data = None
+        else:
 
-        # get grouped dataframe
-        df, group_names = get_index_array(folder_path, user_data);
+            # get grouped dataframe
+            index_df, group_names = get_index_array(folder_path, user_data);
 
-        # Get tree plot as dcc graph
-        graph = dcc.Graph(id = 'tree_structure', figure =  drawSankey(df[group_names]))
+            # Get tree plot as dcc graph
+            fig = dcc.Graph(id = 'tree_structure', figure = drawSankey(index_df[group_names]))
+
+            # send index_df for download
+            data = dcc.send_data_frame(index_df.to_csv, 'index.csv')
+
+            warning = dbc.Alert(id = 'alert_message', children = [str(folder_path)], color="warning", dismissable=True, duration = 5000)
+        return warning, fig, data
 
     except Exception as err:
-        return 'Got ' + str(folder_path) + ': ' + str(err)
+        warning = dbc.Alert(id = 'alert_message', children = [str(err)], color="warning", dismissable=True, duration = 5000)
+        return warning, None, None
         
-    return str(folder_path), graph, dcc.send_data_frame(df.to_csv, 'index.csv')
+    
 
 
 if __name__ == '__main__':
