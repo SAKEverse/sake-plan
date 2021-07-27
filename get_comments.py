@@ -91,10 +91,20 @@ class GetComments:
         self.file_data = file_data    
         
         # get user data containing comment text
-        self.user_data = user_data[user_data['Source'] == self.comment_text].reset_index()
+        self.user_data = user_data[user_data['Source'] == self.comment_text].reset_index(drop=True)
         
-        # get groups
-        self.com_categories = list(self.user_data.Category.unique())
+        # check if user data contain comments as source
+        if len(self.user_data) == 0:    
+            self.category = None # if not set category to none
+        else:
+        
+            # get groups
+            categories = list(self.user_data.Category.unique())
+            
+            # Get unique category
+            if len(categories) > 1:
+                raise Exception('Only one comment category is allowed')    
+            self.category = categories[0]
        
     
     def get_index_per_comment(self, index:int):
@@ -111,7 +121,6 @@ class GetComments:
         com_df : pd.DataFrame
 
         """
-
         
         # create empty arrays
         com_df = pd.DataFrame()
@@ -129,42 +138,35 @@ class GetComments:
         return com_df
      
 
-    def get_comments_with_time(self, index_df, index_time, index_com, category):
+    def get_comments_with_time(self, index_df, index_com, index_time):
         """
+        Convert comment logic to group names with their time to index_df
         
-
         Parameters
         ----------
-        index_df : TYPE
-            DESCRIPTION.
-        index_time : TYPE
-            DESCRIPTION.
-        index_com : TYPE
-            DESCRIPTION.
-        category : TYPE
-            DESCRIPTION.
+        index_df : pd.DataFrame, containing experiment index
+        index_com : pd.DataFrame, containing detected comment logic
+        index_time : pd.DataFrame, containing time for each comment
 
         Returns
         -------
-        full_df : TYPE
-            DESCRIPTION.
+        index_df : pd.DataFrame, containing experiment + comment index 
 
         """
         
-        # create array for full
-        full_df = pd.DataFrame(columns = list(index_df.columns) + [category])
+        # create empty array for one category
+        category_df = pd.DataFrame(columns = list(index_df.columns) + [self.category])
         
-        # add comments to main df
-        for i,comment in enumerate(index_com):
+        for i,comment in enumerate(index_com.columns): # iterate over comments in one category
+        
+            # create temporary dataframe column for one category
+            temp_df = index_df.copy()
             
-            # get comment index
+            # get index where comment is present
             com_idx = index_com[comment]
             
-            # get categories were comment is present
-            temp_df = index_df[com_idx].copy()
-            temp_df.at[:,category] = comment
-            
-            ## get labchart read index ##
+            # get categories were comment is present  
+            temp_df.at[com_idx, self.category] = comment
                
             # get user selection
             user_time = self.user_data.at[i, 'Time Selection (min)'].split(':')
@@ -175,26 +177,41 @@ class GetComments:
             temp_df.at[:,'start_time'] = index_time[comment][com_idx] + (user_time[0] * fs)     # get start time
             temp_df.at[:,'stop_time'] = index_time[comment][com_idx] + (user_time[1] * fs)      # get stop time
             
-            # append to full dataframe
-            full_df = full_df.append(temp_df)
-            
-        return full_df
+            # concatenate to category_df
+            category_df = pd.concat([category_df, temp_df], axis=0)
+        
+        # drop rows not containing the comments
+        category_df = category_df[category_df[self.category].notna()]
+                    
+        return  category_df
     
-    def add_comments_to_index(self, index_df): # for one category
+    
+    def add_comments_to_index(self, index_df):
+        """
+        Adds comment to index_df (if exist).
+
+        Parameters
+        ----------
+        index_df : pd.DataFrame, with experiment index
+
+        Raises
+        ------
+        Exception
+
+        Returns
+        -------
+        index_df : pd.DataFrame, with experiment index (+ comments)
+
         """
         
-        """
-        
-        
-        # get category
-        category =self.user_data['Category'].unique()[0]
-         
+        if self.category is None:
+            return index_df
+                
         # create empty arrays
         index_com = pd.DataFrame()
-        index_time =  pd.DataFrame()
-        
-        # per comment group
-        for i in range(len(self.user_data)): # iterate over user comment groups
+        index_time = pd.DataFrame()
+                
+        for i in range(len(self.user_data)): # iterate over user comment groups in category
             
             # get logic from all File comments
             com_df = self.get_index_per_comment(i)
@@ -208,29 +225,18 @@ class GetComments:
             index_com[self.user_data.at[i, 'Assigned Group Name']] = com_label
             index_time[self.user_data.at[i, 'Assigned Group Name']] = com_time
                
-         # check if at least one condition is present in each experiment pooled from one group    
+        # check if at least one condition is present in each experiment pooled from one group    
         if index_com.any(axis=1).all() == False:
-            raise Exception('Comments were not detected in all files.') 
+            raise Exception('Comments were not detected in all files from: ' + self.category + ' category.')
         
         # add present comments along with their time
-        index_df = self.get_comments_with_time(index_df, index_time, index_com, category)
-        
-        # reset index
-        index_df = index_df.reset_index()
-        
-        # drop nans
-        index_df = index_df.dropna(axis='columns')
-        
-        group_names = list(index_df.columns[index_df.columns.get_loc('stop_time')+1:])
-        
-        return index_df, group_names + ['brain_region']
+        index_df = self.get_comments_with_time(index_df,  index_com, index_time)
+      
+        return index_df
         
     
     
-    
-    
-    
-    
+
     
     
     
