@@ -3,7 +3,7 @@
 import os, shutil, json
 import numpy as np
 import pandas as pd
-import dash, dash_table
+import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
@@ -23,7 +23,9 @@ from filter_table import get_index_array
 
 
 # init dash app with css style sheets
-app = dash.Dash(__name__ , external_stylesheets=[dbc.themes.BOOTSTRAP])
+# apply general css styling
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+app = dash.Dash(__name__, external_stylesheets = external_stylesheets) #, external_stylesheets=[, dbc.themes.BOOTSTRAP]
 app.server.secret_key = os.urandom(24)
 
 # Define main layout
@@ -112,10 +114,8 @@ def update_output(n_clicks, folder_path, user_data):
         return None, fig, data
 
     except Exception as err:
-        warning = dbc.Alert(id = 'alert_message', children = [str(err)], color="warning", dismissable=True, duration = 10000)
+        warning = dbc.Alert(id = 'alert_message', children = ['   ' + str(err)], color="warning", dismissable=True) #, duration = 10000
         return warning, None, None
-        
-    
 
 
 if __name__ == '__main__':
