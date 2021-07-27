@@ -60,7 +60,7 @@ def get_data_at_start(table_data):
     State('user_df', 'data')],
     
     )
-def colony_update(n_clicks, json_data):
+def update_usertable(n_clicks, json_data):
 
     # if dataframe doesn't read default from memory
     if json_data == None:
