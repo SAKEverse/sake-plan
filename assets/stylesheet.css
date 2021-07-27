@@ -1,4 +1,15 @@
 
+#alert_message{
+    background-color: rgb(255, 235, 193);
+    padding-top: 5px;
+    padding-bottom: 5px;
+    color:rgb(122, 98, 52);
+    text-align: center;
+}
+
+#alert_message.button.close{
+    background-color: rgb(52, 76, 151);
+}
 
 #data_path_main_div{
     display:inline-block;
@@ -11,7 +22,7 @@
 }
 
 #data_path_input{
-    width: 300px;
+    width: 700px;
 }
 
 #generate_button {
