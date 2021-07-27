@@ -243,7 +243,7 @@ def create_index_array(file_data, user_data):
         logic_index_df = pd.concat([logic_index_df, df], axis=1)
             
     # add columns from file to data
-    add_columns = ['file_name', 'channel_id', 'block' , 'sampling_rate', 'brain_region']
+    add_columns = ['folder_path','file_name', 'channel_id', 'block' , 'sampling_rate', 'brain_region']
     index_df = pd.concat([index_df, file_data[add_columns]], axis=1)
     
     # get time
@@ -256,9 +256,12 @@ def create_index_array(file_data, user_data):
     # convert logic to groups
     index_df = convert_logicdf_to_groups(index_df, logic_index_df, groups_ids)
     
-    # get time and comments ( # check when no comments are present)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # get time and comments
     obj = GetComments(file_data, user_data, 'comment_text', 'comment_time')
     index_df = obj.add_comments_to_index(index_df)
+    
+    # reset index and rename previous index to file_id
+    index_df = index_df.rename_axis('file_id').reset_index()
     
     # check if groups were not detected
     if index_df.isnull().values.any():
