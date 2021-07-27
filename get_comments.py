@@ -126,7 +126,7 @@ class GetComments:
         com_df = pd.DataFrame()
         
         for comtext,comtime in self.com_match.items():      # iterate over file comment columns
-                
+           
             # find index for specified source and match string
             idx = getattr(string_filters, self.user_data.at[index, 'Search Function'],
                           )(self.file_data[comtext], self.user_data.at[index, 'Search Value'])
@@ -134,7 +134,7 @@ class GetComments:
             # append to dataframe
             com_df[comtext] = idx                           # com text logic for detection
             com_df[comtime] = self.file_data[comtime]       # com time
-            
+
         return com_df
      
 
@@ -182,7 +182,7 @@ class GetComments:
         
         # drop rows not containing the comments
         category_df = category_df[category_df[self.category].notna()]
-                    
+
         return  category_df
     
     
