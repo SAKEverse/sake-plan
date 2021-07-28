@@ -4,7 +4,7 @@ from beartype import beartype
 import numpy as np
 import pandas as pd
 from adi_parse import AdiParse
-import string_filters
+import search_function
 from get_comments import GetComments
 
 @beartype
@@ -44,6 +44,9 @@ def get_file_data(folder_path:str, channel_order:list):
             
     # convert data frame to lower case
     file_data = file_data.apply(lambda x: x.astype(str).str.lower())
+    
+    # convert file length to int
+    file_data['file_length'] = file_data['file_length'].astype(np.int64)
     
     return file_data
 
@@ -203,7 +206,7 @@ def get_source_logic(file_data, user_data, source:str):
     for i in range(len(user_data)): # iterate over user data entries       
                 
         # find index for specified source and match string
-        idx = getattr(string_filters, user_data.at[i, 'Search Function'])(file_data[source], user_data.at[i, 'Search Value'])                              
+        idx = getattr(search_function, user_data.at[i, 'Search Function'])(file_data[source], user_data.at[i, 'Search Value'])                              
         
         # append to index dictionary                
         index.update({user_data.at[i, 'Assigned Group Name']: idx})
@@ -243,7 +246,7 @@ def create_index_array(file_data, user_data):
         logic_index_df = pd.concat([logic_index_df, df], axis=1)
             
     # add columns from file to data
-    add_columns = ['folder_path','file_name', 'channel_id', 'block' , 'sampling_rate', 'brain_region']
+    add_columns = ['folder_path','file_name','file_length', 'channel_id', 'block' , 'sampling_rate', 'brain_region',]
     index_df = pd.concat([index_df, file_data[add_columns]], axis=1)
     
     # get time
@@ -267,6 +270,10 @@ def create_index_array(file_data, user_data):
     if index_df.isnull().values.any():
         nan_cols = str(list(index_df.columns[index_df.isna().any()]))
         raise Exception('Some conditons were not detected in the following column(s): ' + nan_cols)
+    
+    # check if  user selected time exceeds bounds
+    if (index_df['start_time']<0).any() or (index_df['stop_time']>index_df['file_length']).any():
+        raise Exception('Selected time exceeds bounds.')
     
     # get added group names based on user input
     group_columns = list(index_df.columns[index_df.columns.get_loc('stop_time')+1:]) + ['brain_region']

@@ -75,8 +75,9 @@ def update_usertable(n_clicks, json_data):
 
     if n_clicks > 0: # Add rows when button is clicked
         
-        a = np.empty([1, len(df.columns)]) # create empty numpy array
-        a[:] = np.nan # convert all to nans
+        a = np.empty([1, len(df.columns)],dtype=object) # create empty numpy array
+        a[:] = '' # convert all to nans
+        a[0][-1]='all'
         append_df = pd.DataFrame(a, columns = df.columns) # create dataframe
         df = df.append(append_df, ignore_index=True) # append dataframe
 

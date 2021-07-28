@@ -7,7 +7,7 @@ Created on Fri Jul 23 10:59:45 2021
 
 import numpy as np
 import pandas as pd
-import string_filters
+import search_function
 
 
 
@@ -128,7 +128,7 @@ class GetComments:
         for comtext,comtime in self.com_match.items():      # iterate over file comment columns
            
             # find index for specified source and match string
-            idx = getattr(string_filters, self.user_data.at[index, 'Search Function'],
+            idx = getattr(search_function, self.user_data.at[index, 'Search Function'],
                           )(self.file_data[comtext], self.user_data.at[index, 'Search Value'])
             
             # append to dataframe
@@ -170,6 +170,8 @@ class GetComments:
                
             # get user selection
             user_time = self.user_data.at[i, 'Time Selection (min)'].split(':')
+            if len(user_time) != 2:
+                raise Exception('Time could not be parsed for', self.user_data.at[i, 'Time Selection (min)'])
             user_time = np.array([int(x) for x in user_time]) *60 # convert to seconds
             
             # add to comment time
@@ -182,7 +184,11 @@ class GetComments:
         
         # drop rows not containing the comments
         category_df = category_df[category_df[self.category].notna()]
-
+        
+        # convert times to int
+        category_df['start_time'] = category_df['start_time'].astype(np.int64)
+        category_df['stop_time'] = category_df['stop_time'].astype(np.int64)
+        
         return  category_df
     
     
@@ -227,7 +233,7 @@ class GetComments:
                
         # check if at least one condition is present in each experiment pooled from one group    
         if index_com.any(axis=1).all() == False:
-            raise Exception('Comments were not detected in all files from: ' + self.category + ' category.')
+            raise Exception('Comments were not detected in all files from -' + self.category + '- category.')
         
         # add present comments along with their time
         index_df = self.get_comments_with_time(index_df,  index_com, index_time)
