@@ -172,8 +172,8 @@ class GetComments:
                
             # get times from comment
             fs = np.array(index_df['sampling_rate'], dtype = float)                    # convert sampling rate form string to float
-            temp_df.at[:,'start_time'] = com_time[:, i] + (user_times[i,0] * fs)     # get start time
-            temp_df.at[:,'stop_time'] = com_time[:, i] + (user_times[i,1] * fs)      # get stop time
+            temp_df.at[:,'start_time'] = com_time[:, i] + (user_times[i][0] * fs)     # get start time
+            temp_df.at[:,'stop_time'] = com_time[:, i] + (user_times[i][1] * fs)      # get stop time
             
             # concatenate to category_df
             category_df = pd.concat([category_df, temp_df], axis=0)
