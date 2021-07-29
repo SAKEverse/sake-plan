@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from adi_parse import AdiParse
 import search_function
-from get_comments import GetComments
+from get_all_comments import GetComments
 
 @beartype
 def get_file_data(folder_path:str, channel_order:list):
