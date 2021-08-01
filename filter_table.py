@@ -271,9 +271,11 @@ def create_index_array(file_data, user_data):
         nan_cols = str(list(index_df.columns[index_df.isna().any()]))
         raise Exception('Some conditons were not detected in the following column(s): ' + nan_cols)
     
-    # check if  user selected time exceeds bounds
-    if (index_df['start_time']<0).any() or (index_df['stop_time']>index_df['file_length']).any():
-        raise Exception('Selected time exceeds bounds.')
+    # check if user selected time exceeds bounds
+    if (index_df['start_time']<0).any() or (index_df['start_time']>index_df['file_length']).any():
+        raise Exception('Start time exceeds bounds.')
+    elif (index_df['stop_time']<0).any() or (index_df['stop_time']>index_df['file_length']).any():
+        raise Exception('Stop time exceeds bounds.')
     
     # get added group names based on user input
     group_columns = list(index_df.columns[index_df.columns.get_loc('stop_time')+1:]) + ['brain_region']

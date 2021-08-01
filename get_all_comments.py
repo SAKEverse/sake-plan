@@ -225,10 +225,14 @@ class GetComments:
             
             # get user selection
             user_time = self.user_data.at[i, 'Time Selection (sec)'].split(':')
+            user_time = [int(x) for x in user_time]
             if len(user_time) != 2:
                 raise Exception('Time could not be parsed for', self.user_data.at[i, 'Time Selection (sec)'])
+            elif (user_time[1] - user_time[0]) < 1:
+                raise Exception('Stop time must exceed start time.')
+                
             # append to user times
-            user_times.extend([np.array([int(x) for x in user_time])] *len(self.com_text_cols))
+            user_times.extend([np.array(user_time)] *len(self.com_text_cols))
             
             # get logic from all File comments
             temp_com_logic, temp_com_time = self.get_index_per_comment(i)
