@@ -6,6 +6,6 @@ channel_name,contains,m_,male,sex,all
 channel_name,contains,f_,female,sex,all
 file_name,endswith,ko,knockout,genotype,all
 file_name,endswith,wt,wildtype,genotype,all
-comment_text,contains,veh,baseline,treatment,-20:-1
-comment_text,contains,odor,vehicle,treatment,-20:-1
-comment_text,contains,odor,predator_odor,treatment,1:30
+comment_text,contains,veh,baseline,treatment,-1200:-60
+comment_text,contains,odor,vehicle,treatment,-1200:-61
+comment_text,contains,odor,predator_odor,treatment,60:1200
