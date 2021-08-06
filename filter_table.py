@@ -228,11 +228,13 @@ def create_index_array(file_data, user_data):
     -------
     index_df: pd.DataFrame, with index
     group_columns: list, column names that denote groups
+    warning_str: str, string used for warning
     """
     
     # create empty dataframes for storage
     logic_index_df = pd.DataFrame()
     index_df = pd.DataFrame()
+    warning_str = ''
     
     # create sources list
     sources = ['channel_name', 'file_name']
@@ -268,8 +270,11 @@ def create_index_array(file_data, user_data):
     
     # check if groups were not detected
     if index_df.isnull().values.any():
-        nan_cols = str(list(index_df.columns[index_df.isna().any()]))
-        raise Exception('Some conditons were not detected in the following column(s): ' + nan_cols)
+        # breakpoint()
+        # nan_cols = str(list(index_df.columns[index_df.isna().any()]))
+        warning_str = 'Some conditons were not found!'
+        # index_df = index_df.replace(np.nan, 'not_found', regex=True)
+        # raise Exception('Some conditons were not detected in the following column(s): ' + nan_cols)
     
     # check if user selected time exceeds bounds
     if (index_df['start_time']<0).any() or (index_df['start_time']>index_df['file_length']).any():
@@ -280,7 +285,7 @@ def create_index_array(file_data, user_data):
     # get added group names based on user input
     group_columns = list(index_df.columns[index_df.columns.get_loc('stop_time')+1:]) + ['brain_region']
                      
-    return index_df, group_columns
+    return index_df, group_columns, warning_str
 
 
 def get_index_array(folder_path, user_data):
@@ -297,6 +302,7 @@ def get_index_array(folder_path, user_data):
     -------
     index_df: pd.DataFrame, with index
     group_columns: list, column names that denote groups
+    warning_str: str, string used for warning
 
     """
     
@@ -318,9 +324,9 @@ def get_index_array(folder_path, user_data):
     file_data = get_file_data(folder_path, channel_order)
     
     # get index datframe
-    index_df, group_columns = create_index_array(file_data, user_data)
+    index_df, group_columns, warning_str = create_index_array(file_data, user_data)
     
-    return index_df, group_columns
+    return index_df, group_columns, warning_str
 
 if __name__ == '__main__':
     
@@ -344,7 +350,7 @@ if __name__ == '__main__':
     file_data = get_file_data(folder_path, channel_order)
 
     # get experiment index
-    index_df, group_columns = create_index_array(file_data, user_data)
+    index_df, group_columns, warning_str = create_index_array(file_data, user_data)
     
 
     
