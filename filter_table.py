@@ -263,7 +263,7 @@ def create_index_array(file_data, user_data):
     
     # get time and comments
     obj = GetComments(file_data, user_data, 'comment_text', 'comment_time')
-    index_df = obj.add_comments_to_index(index_df)
+    index_df, com_warning = obj.add_comments_to_index(index_df)
     
     # reset index and rename previous index to file_id
     index_df = index_df.rename_axis('file_id').reset_index()
@@ -285,7 +285,7 @@ def create_index_array(file_data, user_data):
     # get added group names based on user input
     group_columns = list(index_df.columns[index_df.columns.get_loc('stop_time')+1:]) + ['brain_region']
                      
-    return index_df, group_columns, warning_str
+    return index_df, group_columns, warning_str + com_warning
 
 
 def get_index_array(folder_path, user_data):
