@@ -195,14 +195,24 @@ class AdiParse:
         # add comments for each channel
         properties = {'text' : 'comment_text_', 'tick_position' : 'comment_time_'}
         
+        
+        # retrieve all comments
+        comments = adi_obj.records[0].comments;
+        
+        # get channel order
+        ch_idx = np.array([com.channel_ for com in comments])
+
         # iterate over properties
         for key, val in properties.items():
+            
+            # index array
+            idx_array = np.array([getattr(com, key)for com in comments])
             
             temp_coms = [] # creaty empty list
             for ch in range(self.n_channels): # iterate over channels
                 
-                # convert comments to flattened list
-                temp_coms.append([getattr(x, key) for x in adi_obj.channels[ch].records[self.block].comments])
+                # get attribute that belongs in a channel
+                temp_coms.append(idx_array[ (ch_idx == ch) | (ch_idx == -1) ]) #-1 means all channels
             
             # convert list to dataframe
             df_comments = pd.DataFrame(temp_coms)
@@ -372,8 +382,8 @@ class AdiParse:
 
 if __name__ == '__main__':
     
-    file_path = r'C:\Users\panton01\Desktop\example_files\#3animal_sdsda_wt.adicht'
-    channel_order = ['Bla', 'Hipp', 'Emg']
+    file_path = r'C:\Users\panton01\Desktop\example_files\#1animal_sdsda_wt.adicht'#r'Z:\Pantelis\Combined Cohorts 1 & 2 (4 Channel)\PV-dlx-hm3d_d1(3)_1-4_comments.adicht'
+    channel_order = ['na', 'Bla', 'Hipp', 'Emg']
     # initiate object      
     adi_parse= AdiParse(file_path, channel_order)
     
