@@ -97,13 +97,13 @@ def update_output(n_clicks, folder_path, user_data):
 
     try:
         if folder_path is None:         
-            # warning = None
+            warning = None
             fig = None
             data = None
         else:
 
             # get grouped dataframe
-            index_df, group_names = get_index_array(folder_path, user_data);
+            index_df, group_names, warning_str = get_index_array(folder_path, user_data);
 
             # Get tree plot as dcc graph
             fig = dcc.Graph(id = 'tree_structure', figure = drawSankey(index_df[group_names]))
@@ -111,8 +111,8 @@ def update_output(n_clicks, folder_path, user_data):
             # send index_df for download
             data = dcc.send_data_frame(index_df.to_csv, 'index.csv')
 
-            # warning = dbc.Alert(id = 'alert_message', children = [str(folder_path)], color="warning", dismissable=True, duration = 5000)
-        return None, fig, data
+            warning = dbc.Alert(id = 'alert_message', children = [str(warning_str)], color="warning", dismissable=True)
+        return warning, fig, data
 
     except Exception as err:
         warning = dbc.Alert(id = 'alert_message', children = ['   ' + str(err)], color="warning", dismissable=True) #, duration = 10000
