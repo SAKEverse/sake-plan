@@ -130,7 +130,7 @@ class AdiParse:
         """
         
         # add file name
-        df['file_name'] = self.file_name.replace('.adicht', '')
+        df['file_name'] = self.file_name #.replace('.adicht', '')
         
         return df
     
