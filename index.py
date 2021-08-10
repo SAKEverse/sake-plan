@@ -109,7 +109,7 @@ def update_output(n_clicks, folder_path, user_data):
             fig = dcc.Graph(id = 'tree_structure', figure = drawSankey(index_df[group_names]))
 
             # send index_df for download
-            data = dcc.send_data_frame(index_df.to_csv, 'index.csv')
+            data = dcc.send_data_frame(index_df.to_csv, 'index.csv', index = False)
 
             warning = dbc.Alert(id = 'alert_message', children = [str(warning_str)], color="warning", dismissable=True)
         return warning, fig, data
