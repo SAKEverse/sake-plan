@@ -13,6 +13,7 @@ pytest = "*"
 numpy = "*"
 dash-daq = "*"
 dash-bootstrap-components = "*"
+cffi = "*"
 
 [requires]
 python_version = "*"
