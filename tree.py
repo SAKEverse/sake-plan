@@ -12,8 +12,10 @@ import numpy as np
 import itertools
 
 def drawSankey(data):
+    
     group_tree={col:{unique:len(data[col][data[col]==unique]) for unique in data[col].unique()} for col in data}
     uniques=[[unique for unique in data[col].unique()] for col in data]
+    
     
     all_combo=[combo for col in range(1,len(uniques)+1) for combo in list(itertools.product(*uniques[:col]))]
     value=[(data.iloc[:,:len(combo)]==combo).all(axis=1).sum() for combo in all_combo]  
@@ -42,7 +44,7 @@ def drawSankey(data):
         textfont = plotly.graph_objects.sankey.Textfont(size=18, color='black',family='Droid Serif'),
         arrangement='perpendicular',
         node = dict(
-          pad = 20,
+          pad = 50,
           thickness = 10,
           line = dict(color = 'black', width = 3),
           label = labels,
@@ -50,7 +52,7 @@ def drawSankey(data):
           color = 'rgb(190,45,45)',
         ),
         link = dict(
-          line = dict(color = 'black', width = 3),
+          line = dict(color = 'rgb(130,130,130)', width = 3),
           source = source, # indices correspond to labels, eg A1, A2, A1, B1, ...
           target = target,
           value = value,
