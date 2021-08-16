@@ -284,7 +284,9 @@ def create_index_array(file_data, user_data):
     
     # get added group names based on user input
     group_columns = list(index_df.columns[index_df.columns.get_loc('stop_time')+1:]) + ['brain_region']
-                     
+    
+    # put categories at end
+    index_df = index_df[ [x for x in list(index_df.columns) if x not in group_columns] + group_columns]           
     return index_df, group_columns, warning_str + com_warning
 
 
