@@ -43,7 +43,8 @@
 
 #add_row_button {
     color: white;
-    background-color: rgb(87, 87, 87);  
+    background-color: rgb(87, 87, 87);
+    font-size: large;
 }
 
 #tree_structure{
