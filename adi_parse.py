@@ -19,14 +19,14 @@ class AdiParse:
     """   
     
     @beartype
-    def __init__(self, file_path:str, channel_order:list = []):
+    def __init__(self, file_path:str, channel_structures:dict = {}):
         """
         Retrieve file properties and pass to self.properties
 
         Parameters
         ----------
         file_path : str
-        channel_order : list, optional
+        channel_structures : dict, keys =  total channels, values = channel list
 
         Returns
         -------
@@ -56,8 +56,13 @@ class AdiParse:
         self.n_channels = adi_obj.n_channels
         
         # Get file length
-        self.file_length = int(block_len[self.block]) 
-               
+        self.file_length = int(block_len[self.block])
+        
+        # get channel order if total channel number matches
+        channel_order = []
+        if self.n_channels in channel_structures.keys():
+            channel_order = channel_structures[self.n_channels]
+            
         # get channel order
         if len(channel_order) == 0:
             self.channel_order = 'Brain regions were not found'

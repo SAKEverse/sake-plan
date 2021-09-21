@@ -8,14 +8,14 @@ import search_function
 from get_all_comments import GetComments
 
 @beartype
-def get_file_data(folder_path:str, channel_order:list):
+def get_file_data(folder_path:str, channel_structures:dict):
     """
     Get file data in dataframe
 
     Parameters
     ----------
     folder_path : str
-    channel_order : list, with channel names in order
+    channel_structures : dict, keys =  total channels, values = channel list
 
     Returns
     -------
@@ -29,7 +29,7 @@ def get_file_data(folder_path:str, channel_order:list):
     for i, file in enumerate(filelist): # iterate over list
     
         # initiate adi parse object      
-        adi_parse= AdiParse(os.path.join(folder_path, file), channel_order)
+        adi_parse = AdiParse(os.path.join(folder_path, file), channel_structures)
         
         # get all file data in dataframe
         temp_file_data = adi_parse.get_all_file_properties()
@@ -51,13 +51,13 @@ def get_file_data(folder_path:str, channel_order:list):
     return file_data
 
 
-def get_channel_order(user_data):
+def get_channel_structures(user_data):
     """
-    Get channel order from user data
+    Get channel structure from SAKE user data
 
     Parameters
     ----------
-    user_data : Dataframe with user data
+    user_data : Dataframe with user data for SAKE input
 
     Returns
     -------
@@ -65,27 +65,22 @@ def get_channel_order(user_data):
 
     """
     
+    
+    # define separator
+    separtor = '-'
+    
     # get data containing channel order
-    channel_order = user_data[user_data['Source'] == 'channel_order']
+    channel_structures = user_data[user_data['Source'] == 'total_channels']
     
-    # sort by order number
-    channel_order = channel_order.sort_values(by=['Search Value'])
-    
-    # get order and channel names in 
-    order = list(channel_order['Search Value'])
-    regions = list(channel_order['Assigned Group Name'])
-    
-    # find integers
-    integers = [s for s in order if s.isdigit()]
-    
-    if len(order) != len(integers):
-        raise Exception('Channel order option accepts only integers. e.g.: 1,2,3')
+    regions = {}
+    for i in range(len(channel_structures)):
         
-    if len(order) != len(regions):
-        raise Exception('Each group name requires an order number')
+        # retrieve channel names
+        channel_names = channel_structures['Assigned Group Name'][i]
         
-    if len(set(order)) != len(order):
-        raise Exception('Each number in channel order must be unique. Got:', order, 'instead')
+        # get list of channels for each total channels entry
+        region_list = channel_names.split(separtor)
+        regions.update({int(channel_structures['Search Value'][i]): region_list})
         
     return regions
 
@@ -320,10 +315,10 @@ def get_index_array(folder_path, user_data):
         raise Exception('Duplicate -Assigned Group Names- were found. Please check that -Assigned Group Names- are unique')
     
     # get channel order
-    channel_order = get_channel_order(user_data)
+    channel_structures = get_channel_structures(user_data)
     
     # get all file data in dataframe
-    file_data = get_file_data(folder_path, channel_order)
+    file_data = get_file_data(folder_path, channel_structures)
     
     # get index datframe
     index_df, group_columns, warning_str = create_index_array(file_data, user_data)
@@ -346,10 +341,10 @@ if __name__ == '__main__':
     user_data = user_data[user_data.Source != '']
     
     # get channel order
-    channel_order = get_channel_order(user_data)
+    channel_structures = get_channel_structures(user_data)
     
     # get all file data in dataframe
-    file_data = get_file_data(folder_path, channel_order)
+    file_data = get_file_data(folder_path, channel_structures)
 
     # get experiment index
     index_df, group_columns, warning_str = create_index_array(file_data, user_data)
