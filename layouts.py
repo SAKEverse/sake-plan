@@ -57,7 +57,7 @@ layout1 =  html.Div(id = 'layout_channel', children=[
 
     # 2- add row button
      html.Div( id='add_row_button_div', children=[
-            html.Button('Add row', id='add_row_button', n_clicks=0,   
+            html.Button('+', id='add_row_button', n_clicks=0,   
             ),]),
 
     # tree group diagram
