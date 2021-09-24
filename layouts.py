@@ -22,6 +22,9 @@ layout1 =  html.Div(id = 'layout_channel', children=[
         html.Div(id = 'export_div', children=[ # invisible (used for export)
             dcc.Download(id='download_dataframe_csv') ]),
 
+        html.Div(id = 'export_user_data_div', children=[ # invisible (used for export)
+            dcc.Download(id='download_user_data_csv') ]),
+
         html.Div( id='generate_div', children=[
             html.Button('Generate', id='generate_button', n_clicks=0,   
             ),]),
@@ -29,6 +32,10 @@ layout1 =  html.Div(id = 'layout_channel', children=[
         html.Div(id='data_path_main_div', children = [ 
             dcc.Input(id='data_path_input', type='text', placeholder='Path to data folder'),
         ]),
+
+        html.Div( id='load_user_data_div', children=[
+            html.Button('load_settings', id='load_settings', n_clicks=0,   
+            ),]),
 
     ]),
 

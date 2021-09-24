@@ -88,7 +88,8 @@ def update_usertable(n_clicks, json_data):
 @app.callback(
     [Output('alert_div', 'children'),
      Output('tree_plot_div', 'children'),
-     Output('download_dataframe_csv', 'data')],
+     Output('download_dataframe_csv', 'data'),
+     Output('download_user_data_csv', 'data')],
     [Input('generate_button', 'n_clicks')],
     [State('data_path_input', 'value'),
     State('user_table', 'data')],
@@ -100,10 +101,11 @@ def update_output(n_clicks, folder_path, user_data):
             warning = None
             fig = None
             data = None
+            user_data_export = None
         else:
 
             # get grouped dataframe
-            index_df, group_names, warning_str = get_index_array(folder_path, user_data);
+            index_df, group_names, warning_str = get_index_array(folder_path, user_data)
 
             # Get tree plot as dcc graph
             fig = dcc.Graph(id = 'tree_structure', figure = drawSankey(index_df[group_names]))
@@ -111,12 +113,16 @@ def update_output(n_clicks, folder_path, user_data):
             # send index_df for download
             data = dcc.send_data_frame(index_df.to_csv, 'index.csv', index = False)
 
+            # send user data for download
+            user_data = pd.DataFrame(user_data)
+            user_data_export = dcc.send_data_frame(user_data.to_csv, 'user_data.csv', index = False)
+
             warning = dbc.Alert(id = 'alert_message', children = [str(warning_str)], color="warning", dismissable=True)
-        return warning, fig, data
+        return warning, fig, data, user_data_export
 
     except Exception as err:
         warning = dbc.Alert(id = 'alert_message', children = ['   ' + str(err)], color="warning", dismissable=True) #, duration = 10000
-        return warning, None, None
+        return warning, None, None, None
 
 
 if __name__ == '__main__':
