@@ -3,7 +3,6 @@ import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table
 import dash_daq as daq
-import pandas as pd
 
 
 # Always present
@@ -34,8 +33,8 @@ layout1 =  html.Div(id = 'layout_channel', children=[
         ]),
 
         html.Div( id='load_user_data_div', children=[
-            html.Button('load_settings', id='load_settings', n_clicks=0,   
-            ),]),
+            dcc.Upload( id='upload_data', accept = '.csv', children = (html.Button('load_settings', id='load_settings', n_clicks=0))),
+        ]),
 
     ]),
 

@@ -1,6 +1,6 @@
 
 ### ---------------------------- Imports ---------------------------- ###
-import os, shutil, json
+import os, shutil, io, base64
 import numpy as np
 import pandas as pd
 import dash
@@ -14,7 +14,6 @@ from flask import session
 from app import app
 from layouts import layout1
 import dash_bootstrap_components as dbc
-from adi_parse import AdiParse
 from create_user_table import dashtable
 from tree import drawSankey
 from filter_table import get_index_array
@@ -57,18 +56,24 @@ def get_data_at_start(table_data):
     Output('user_table', 'dropdown')
     ],
     [Input("add_row_button","n_clicks"),
-    State('user_df', 'data')],
+    Input('upload_data', 'contents'),],
+    [State('user_df', 'data')],
     
     )
-def update_usertable(n_clicks, json_data):
-
-    # if dataframe doesn't read default from memory
-    if json_data == None:
-        # get default dataframe
-        df = pd.read_csv(user_table_path)
-    else:
-        # get data from user datatable
-        df = pd.read_json(json_data, orient='split')
+def update_usertable(n_clicks, upload_contents, session_user_data):
+    
+    # load user input from csv file selected by user
+    if upload_contents is not None:
+        _, content_string = upload_contents.split(',')
+        decoded = base64.b64decode(content_string)
+        df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+    else:  
+        if session_user_data == None:   # if new user session
+            # get default dataframe
+            df = pd.read_csv(user_table_path)
+        else:                           # load user input from current session
+            # get data from user datatable
+            df = pd.read_json(session_user_data, orient='split')
 
     # conver user data in dashtable format
     dash_cols, df, drop_dict = dashtable(df) 
@@ -94,7 +99,7 @@ def update_usertable(n_clicks, json_data):
     [State('data_path_input', 'value'),
     State('user_table', 'data')],
 )
-def update_output(n_clicks, folder_path, user_data):
+def update_output(n_clicks1, folder_path, user_data):
 
     try:
         if folder_path is None:         
@@ -127,7 +132,10 @@ def update_output(n_clicks, folder_path, user_data):
 
 if __name__ == '__main__':
 
-    user_table_path = 'example_data/default_table_data.csv'
+    user_table_original_path = 'example_data/default_table_data'
+    user_table_path = user_table_original_path +'_main.csv'
+
+    shutil.copy(user_table_original_path +'.csv', user_table_path)
 
     app.run_server(debug = True,
                     port = 8050,
