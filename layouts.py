@@ -15,11 +15,11 @@ layout1 =  html.Div(id = 'layout_channel', children=[
         
     ]),
 
-    # 1- generate button + field div
+    # 1- generate button + folder path field + upload settings
     html.Div(id='generate_plus_field_div', children=[
 
         html.Div(id = 'export_div', children=[ # invisible (used for export)
-            dcc.Download(id='download_dataframe_csv') ]),
+            dcc.Download(id='download_index_csv') ]),
 
         html.Div(id = 'export_user_data_div', children=[ # invisible (used for export)
             dcc.Download(id='download_user_data_csv') ]),

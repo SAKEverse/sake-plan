@@ -1,22 +1,23 @@
 
 ### ---------------------------- Imports ---------------------------- ###
-import os, shutil, io, base64
+import os
 import numpy as np
 import pandas as pd
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
-from flask import session
+# from flask import session
 
 
 # User Defined #
 from app import app
 from layouts import layout1
 import dash_bootstrap_components as dbc
-from create_user_table import dashtable
+from create_user_table import dashtable, add_row
 from tree import drawSankey
 from filter_table import get_index_array
+import user_data
 # import callbacks
 ### ----------------------------------------------------------------- ###
 
@@ -64,13 +65,11 @@ def update_usertable(n_clicks, upload_contents, session_user_data):
     
     # load user input from csv file selected by user
     if upload_contents is not None:
-        _, content_string = upload_contents.split(',')
-        decoded = base64.b64decode(content_string)
-        df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+        df = user_data.upload_csv(upload_contents)
     else:  
         if session_user_data == None:   # if new user session
             # get default dataframe
-            df = pd.read_csv(user_table_path)
+            df = user_data.original_user_data
         else:                           # load user input from current session
             # get data from user datatable
             df = pd.read_json(session_user_data, orient='split')
@@ -79,12 +78,7 @@ def update_usertable(n_clicks, upload_contents, session_user_data):
     dash_cols, df, drop_dict = dashtable(df) 
 
     if n_clicks > 0: # Add rows when button is clicked
-        
-        a = np.empty([1, len(df.columns)],dtype=object) # create empty numpy array
-        a[:] = '' # convert all to nans
-        a[0][-1]='all'
-        append_df = pd.DataFrame(a, columns = df.columns) # create dataframe
-        df = df.append(append_df, ignore_index=True) # append dataframe
+        df = add_row(df)
 
     return dash_cols, df.to_dict('records'), True, drop_dict
 
@@ -93,7 +87,7 @@ def update_usertable(n_clicks, upload_contents, session_user_data):
 @app.callback(
     [Output('alert_div', 'children'),
      Output('tree_plot_div', 'children'),
-     Output('download_dataframe_csv', 'data'),
+     Output('download_index_csv', 'data'),
      Output('download_user_data_csv', 'data')],
     [Input('generate_button', 'n_clicks')],
     [State('data_path_input', 'value'),
@@ -131,11 +125,6 @@ def update_output(n_clicks1, folder_path, user_data):
 
 
 if __name__ == '__main__':
-
-    user_table_original_path = 'example_data/default_table_data'
-    user_table_path = user_table_original_path +'_main.csv'
-
-    shutil.copy(user_table_original_path +'.csv', user_table_path)
 
     app.run_server(debug = True,
                     port = 8050,

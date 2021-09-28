@@ -12,6 +12,9 @@ user_data_columns = original_user_data.columns
 
 def upload_csv(upload_contents:str):
     """
+    Parse string data from dcc upload (csv file) 
+    and construct pandas dataframe
+
     PARAMETERS
     ---------
     upload_contents: str, contents from dcc upload object

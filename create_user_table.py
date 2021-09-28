@@ -39,6 +39,25 @@ def dashtable(df):
             drop_dict.update({dropdown_cols[i]:{'options': drop_list, 'clearable':False}}) # append to dict
     return dash_cols, df, drop_dict
 
+def add_row(df):
+    """
+    Add one row to dataframe
+
+    PARAMETERS
+    ----------
+    df: pd.DataFrame,
+    
+    OUTPUT
+    ----------
+    df: pd.DataFrame, with one added row
+
+    """
+    a = np.empty([1, len(df.columns)], dtype = object) # create empty numpy array
+    a[:] = '' # convert all to nans
+    a[0][-1]='all'
+    append_df = pd.DataFrame(a, columns = df.columns) # create dataframe
+    df = df.append(append_df, ignore_index=True) # append dataframe
+    return df
 
 if __name__ == '__main__':
 
