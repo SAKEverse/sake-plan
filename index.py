@@ -31,18 +31,16 @@ app.layout = html.Div(children = [
     html.Div(children = layout1), 
 ])
 
-# # update dataframe
-# @app.callback(
-#     Output('user_df', 'data'),
-#     [Input('user_table', 'data'),]
+# update user data in session
+@app.callback(
+    Output('user_df', 'data'),
+    [Input('user_table', 'data'),]
    
-#     )
-# def get_data_at_start(table_data):
+    )
+def update_user_data(table_data):
     
-#     # convert data to dataframe
-#     df = pd.DataFrame(table_data)
- 
-#     return df.to_json(date_format='iso', orient='split')
+    df = pd.DataFrame(table_data)
+    return df.to_json(date_format='iso', orient='split')
 
 
 
