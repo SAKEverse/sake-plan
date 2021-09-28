@@ -1,5 +1,5 @@
 import pandas as pd
-
+import numpy as np
 
 # Create dropdown column elements
 dropdown_cols = ['Source', 'Search Function']

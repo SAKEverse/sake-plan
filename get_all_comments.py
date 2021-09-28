@@ -208,9 +208,8 @@ class GetComments:
         """
         # init comment warning
         com_warning = ' '
-
         if self.category is None:
-            return index_df
+            return index_df, com_warning
                 
         # create empty arrays
         com_logic = np.zeros( (len(self.file_data), len(self.com_text_cols)*len(self.user_data)))
@@ -248,11 +247,10 @@ class GetComments:
         # check if at least one comment is present in each file
         if com_logic.any(axis=1).all() == False:
             com_warning = 'Comments were not detected in all files. Some data might be ommited from indexing.'
-        #     raise Exception('Comments were not detected in all files from -' + self.category + '- category.')
         
         # add present comments along with their time
         index_df = self.get_comments_with_time(index_df, com_names, user_times, com_logic.astype(bool), com_time)
-      
+        
         return index_df, com_warning
         
     

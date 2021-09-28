@@ -332,7 +332,7 @@ if __name__ == '__main__':
     folder_path = r'C:\Users\panton01\Desktop\example_files'
     
     # get user table data example
-    user_data = pd.read_csv('example_data/default_table_data.csv')
+    user_data = pd.read_csv(r'C:\Users\panton01\Desktop\user_data - Copy.csv')
     
     # convert data frame to lower case
     user_data = user_data.apply(lambda x: x.astype(str).str.lower())

@@ -1,14 +1,11 @@
 
 ### ---------------------------- Imports ---------------------------- ###
 import os
-import numpy as np
 import pandas as pd
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
-# from flask import session
-
 
 # User Defined #
 from app import app
@@ -34,18 +31,18 @@ app.layout = html.Div(children = [
     html.Div(children = layout1), 
 ])
 
-# update dataframe
-@app.callback(
-    Output('user_df', 'data'),
-    [Input('user_table', 'data'),]
+# # update dataframe
+# @app.callback(
+#     Output('user_df', 'data'),
+#     [Input('user_table', 'data'),]
    
-    )
-def get_data_at_start(table_data):
+#     )
+# def get_data_at_start(table_data):
     
-    # convert data to dataframe
-    df = pd.DataFrame(table_data)
+#     # convert data to dataframe
+#     df = pd.DataFrame(table_data)
  
-    return df.to_json(date_format='iso', orient='split')
+#     return df.to_json(date_format='iso', orient='split')
 
 
 
