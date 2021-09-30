@@ -118,10 +118,14 @@ def update_output(n_clicks1, folder_path, user_data):
         warning = dbc.Alert(id = 'alert_message', children = ['   ' + str(err)], color="warning", dismissable=True) #, duration = 10000
         return warning, None, None, None
 
+import webbrowser
+from threading import Timer
+def open_browser():
+      webbrowser.open('http://localhost:8050/',new=2)
 
 if __name__ == '__main__':
-
-    app.run_server(debug = True,
+    Timer(1, open_browser).start()
+    app.run_server(debug = False,
                     port = 8050,
                     host = 'localhost',
                    )
