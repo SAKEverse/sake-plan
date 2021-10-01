@@ -1,5 +1,7 @@
+### ----------------- IMPORTS ----------------- ###
 import pandas as pd
 import numpy as np
+### ------------------------------------------- ###
 
 # Create dropdown column elements
 dropdown_cols = ['Source', 'Search Function']
@@ -8,7 +10,7 @@ drop_options =[{'total_channels', 'file_name', 'channel_name', 'comment_text'},
 
 def dashtable(df):
     """
-    Convert df to appropriate format
+    Convert df to appropriate format for dash datatable
 
     PARAMETERS
     ----------

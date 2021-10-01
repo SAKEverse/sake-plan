@@ -5,13 +5,13 @@ Created on Tue Jul 13 13:31:17 2021
 @author: panton01
 """
 
-### ------------------------ IMPORTS -------------------------------------- ###
+### ----------- IMPORTS --------------- ###
 import os
 from beartype import beartype
 import numpy as np
 import pandas as pd
 import adi
-### ------------------------------------------------------------------------###
+### ------------------------------------###
 
 class AdiParse:
     """
@@ -113,10 +113,9 @@ class AdiParse:
             # append channel info to dictionary
             df.at[ch, 'channel_id'] = str(ch)
             df.at[ch, 'channel_name'] = adi_obj.channels[ch].name
-            
-            
+
         del adi_obj # clear memory
-        
+
         return df
     
     def add_file_name(self, df):
@@ -200,7 +199,6 @@ class AdiParse:
         # add comments for each channel
         properties = {'text' : 'comment_text_', 'tick_position' : 'comment_time_'}
         
-        
         # retrieve all comments
         comments = adi_obj.records[0].comments;
         
@@ -249,7 +247,6 @@ class AdiParse:
         if type(self.channel_order) == str:
             df['brain_region'] = self.channel_order
         else:
-            
             df['brain_region'] = self.channel_order * int(self.n_channels/len(self.channel_order))
             
         return df
@@ -289,7 +286,7 @@ class AdiParse:
 
         """       
         
-        # get and file names
+        # add channel names
         df = self.get_channel_names()
         
         # add file names

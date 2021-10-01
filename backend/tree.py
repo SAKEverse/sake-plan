@@ -1,15 +1,10 @@
-# -*- coding: utf-8 -*-
-'''
-Created on Wed Jul 14 15:24:34 2021
-
-@author: gweiss01
-'''
-
+### --------- IMPORTS --------- ###
 import pandas as pd
 import plotly.graph_objects as go
 import plotly
 import numpy as np
 import itertools
+### --------------------------- ###
 
 def drawSankey(data):
     

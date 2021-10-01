@@ -1,14 +1,8 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Jul 23 10:59:45 2021
-
-@author: panton01
-"""
-
+### --------- IMPORTS --------- ###
 import numpy as np
 import pandas as pd
-import search_function
-
+from backend import search_function
+### --------------------------- ###
 
 
 class GetComments:
@@ -21,13 +15,11 @@ class GetComments:
         """
         Add Nans to comments not present and get respective time.
         
-    
         Parameters
         ----------
         com_logic_df : pd.DataFrame
         time_array : pd.DataFrame
         label : str
-        
     
         Returns
         -------
@@ -35,7 +27,6 @@ class GetComments:
         com_time : nd array,
     
         """
-    
        
         # find index where column is True
         idx_array = np.array(com_logic_df)
@@ -50,10 +41,7 @@ class GetComments:
             if len(idx) == 0:       # if no True value present
                 com_label[i] = False
                 com_time[i] = np.NaN
-            elif  len(idx) > 1:     # if more than one True value present
-                com_label[i] = np.NaN
-                com_time[i] = np.NaN
-            elif len(idx) == 1:     # if one True value present
+            else:
                 com_label[i] = True
                 com_time[i] = time_array.iloc[i, idx[0]]
     
@@ -76,7 +64,6 @@ class GetComments:
         None.
 
         """
-
         
         # pass to object
         self.comment_text = comment_text
@@ -118,35 +105,39 @@ class GetComments:
 
         Returns
         -------
-        com_df : pd.DataFrame
+        comtext : np.array, true if comment present
+        comtime : np.array, time of comment
 
         """
         
         # create empty arrays
-        com_df = pd.DataFrame()
+        comtext = np.zeros( (len(self.file_data), len(self.com_match)) )
+        comtime = np.zeros( (len(self.file_data), len(self.com_match)) )
         
-        for comtext,comtime in self.com_match.items():      # iterate over file comment columns
+        for i,text in enumerate(self.com_match):      # iterate over file comment columns
            
             # find index for specified source and match string
             idx = getattr(search_function, self.user_data.at[index, 'Search Function'],
-                          )(self.file_data[comtext], self.user_data.at[index, 'Search Value'])
+                          )(self.file_data[text], self.user_data.at[index, 'Search Value'])
             
-            # append to dataframe
-            com_df[comtext] = idx                           # com text logic for detection
-            com_df[comtime] = self.file_data[comtime]       # com time
-
-        return com_df
+            # add to numpy arrays
+            comtext[:,i] =  idx             
+            comtime[:,i] =  self.file_data[self.com_match[text]]
+            
+        return comtext, comtime
      
 
-    def get_comments_with_time(self, index_df, index_com, index_time):
+    def get_comments_with_time(self, index_df, com_names, user_times, com_logic, com_time):
         """
         Convert comment logic to group names with their time to index_df
         
         Parameters
         ----------
         index_df : pd.DataFrame, containing experiment index
-        index_com : pd.DataFrame, containing detected comment logic
-        index_time : pd.DataFrame, containing time for each comment
+        com_names: list, with comment names
+        user_times: list, with 2 element numpy arrays containing time selection  
+        com_logic : np.array, containing detected comment logic
+        com_time : np.array, containing time for each comment
 
         Returns
         -------
@@ -157,27 +148,21 @@ class GetComments:
         # create empty array for one category
         category_df = pd.DataFrame(columns = list(index_df.columns) + [self.category])
         
-        for i,comment in enumerate(index_com.columns): # iterate over comments in one category
+        for i,comment in enumerate(com_names): # iterate over comments in one category
         
             # create temporary dataframe column for one category
             temp_df = index_df.copy()
             
             # get index where comment is present
-            com_idx = index_com[comment]
+            com_idx = com_logic[:,i]
             
             # get categories were comment is present  
             temp_df.at[com_idx, self.category] = comment
                
-            # get user selection
-            user_time = self.user_data.at[i, 'Time Selection (min)'].split(':')
-            if len(user_time) != 2:
-                raise Exception('Time could not be parsed for', self.user_data.at[i, 'Time Selection (min)'])
-            user_time = np.array([int(x) for x in user_time]) *60 # convert to seconds
-            
-            # add to comment time
-            fs = np.array(index_df['sampling_rate'][com_idx], dtype = float)                    # convert sampling rate form string to float
-            temp_df.at[:,'start_time'] = index_time[comment][com_idx] + (user_time[0] * fs)     # get start time
-            temp_df.at[:,'stop_time'] = index_time[comment][com_idx] + (user_time[1] * fs)      # get stop time
+            # get times from comment
+            fs = np.array(index_df['sampling_rate'], dtype = float)                    # convert sampling rate form string to float
+            temp_df.at[:,'start_time'] = com_time[:, i] + (user_times[i][0] * fs)     # get start time
+            temp_df.at[:,'stop_time'] = com_time[:, i] + (user_times[i][1] * fs)      # get stop time
             
             # concatenate to category_df
             category_df = pd.concat([category_df, temp_df], axis=0)
@@ -207,38 +192,57 @@ class GetComments:
         Returns
         -------
         index_df : pd.DataFrame, with experiment index (+ comments)
+        com_warning: str, warning when comments are not found in a channel
 
         """
-        
+        # init comment warning
+        com_warning = ' '
+
+        # if comments do not exist return index_df without changing
         if self.category is None:
-            return index_df
+            return index_df, com_warning
                 
         # create empty arrays
-        index_com = pd.DataFrame()
-        index_time = pd.DataFrame()
-                
+        com_logic = np.zeros( (len(self.file_data), len(self.com_text_cols)*len(self.user_data)))
+        com_time = np.zeros( (len(self.file_data), len(self.com_text_cols)*len(self.user_data)))
+        
+        # comment names
+        com_names = [] 
+        user_times = []
+        
+        cntr = 0 # init counter
         for i in range(len(self.user_data)): # iterate over user comment groups in category
             
-            # get logic from all File comments
-            com_df = self.get_index_per_comment(i)
-                        
-            # combine File logic
-            text = com_df[self.com_text_cols] 
-            time = com_df[self.com_time_cols]
-            com_label, com_time = GetComments.get_index_file_com(text, time, self.user_data.at[i, 'Search Value'])
+            # get comment names
+            com_names.extend(len(self.com_text_cols) * [self.user_data.at[i, 'Assigned Group Name']])
             
-            # pass to dataframe
-            index_com[self.user_data.at[i, 'Assigned Group Name']] = com_label
-            index_time[self.user_data.at[i, 'Assigned Group Name']] = com_time
-               
-        # check if at least one condition is present in each experiment pooled from one group    
-        if index_com.any(axis=1).all() == False:
-            raise Exception('Comments were not detected in all files from -' + self.category + '- category.')
+            # get user selection
+            user_time = self.user_data.at[i, 'Time Selection (sec)'].split(':')
+            user_time = [int(x) for x in user_time]
+            if len(user_time) != 2:
+                raise Exception('Time could not be parsed for', self.user_data.at[i, 'Time Selection (sec)'])
+            elif (user_time[1] - user_time[0]) < 1:
+                raise Exception('Stop time must exceed start time.')
+                
+            # append to user times
+            user_times.extend([np.array(user_time)] *len(self.com_text_cols))
+            
+            # get logic from all File comments
+            temp_com_logic, temp_com_time = self.get_index_per_comment(i)
+            
+            # append to arrays
+            com_logic[:,cntr:cntr+2] = temp_com_logic
+            com_time[:,cntr:cntr+2] = temp_com_time   
+            cntr += len(self.com_text_cols) 
+    
+        # check if at least one comment is present in each file
+        if com_logic.any(axis=1).all() == False:
+            com_warning = 'Comments were not detected in all files. Some data might be ommited from indexing.'
         
         # add present comments along with their time
-        index_df = self.get_comments_with_time(index_df,  index_com, index_time)
-      
-        return index_df
+        index_df = self.get_comments_with_time(index_df, com_names, user_times, com_logic.astype(bool), com_time)
+        
+        return index_df, com_warning
         
     
     

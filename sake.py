@@ -10,11 +10,10 @@ from dash.dependencies import Input, Output, State
 from app import app
 from layouts import layout1
 import dash_bootstrap_components as dbc
-from create_user_table import dashtable, add_row
-from tree import drawSankey
-from filter_table import get_index_array
+from backend.create_user_table import dashtable, add_row
+from backend.tree import drawSankey
+from backend.filter_table import get_index_array
 import user_data
-# import callbacks
 ### ----------------------------------------------------------------- ###
 
 
@@ -117,10 +116,11 @@ def update_output(n_clicks1, folder_path, user_data):
         warning = dbc.Alert(id = 'alert_message', children = ['   ' + str(err)], color="warning", dismissable=True) #, duration = 10000
         return warning, None, None, None
 
+# Automatic browser launch
 import webbrowser
 from threading import Timer
 def open_browser():
-      webbrowser.open('http://localhost:8050/',new=2)
+      webbrowser.open('http://localhost:8050/', new = 2)
 
 if __name__ == '__main__':
     Timer(1, open_browser).start()

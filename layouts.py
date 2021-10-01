@@ -1,5 +1,7 @@
-from dash import dcc, html, dash_table
 
+### --------------- IMPORTS --------------- ###
+from dash import dcc, html, dash_table
+### --------------------------------------- ###
 
 # Always present
 layout1 =  html.Div(id = 'layout_channel', children=[
