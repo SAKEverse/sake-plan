@@ -249,7 +249,7 @@ def create_index_array(file_data, user_data):
     index_df = pd.concat([index_df, file_data[add_columns]], axis=1)
     
     # get time
-    index_df['start_time'] = 0
+    index_df['start_time'] = 1
     index_df['stop_time'] = file_data['file_length']
         
     # get category with group names
