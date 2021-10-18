@@ -1,4 +1,3 @@
-
 ### ---------------------------- Imports ---------------------------- ###
 import os
 import pandas as pd
@@ -13,14 +12,13 @@ import dash_bootstrap_components as dbc
 from backend.create_user_table import dashtable, add_row
 from backend.tree import drawSankey
 from backend.filter_table import get_index_array
-import user_data
+import user_data_mod
 ### ----------------------------------------------------------------- ###
-
 
 # init dash app with css style sheets
 # apply general css styling
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-app = dash.Dash(__name__, external_stylesheets = external_stylesheets) #, external_stylesheets=[, dbc.themes.BOOTSTRAP]
+app = dash.Dash(__name__, external_stylesheets = external_stylesheets)
 app.server.secret_key = os.urandom(24)
 
 # Define main layout
@@ -41,8 +39,7 @@ def update_user_data(table_data):
     return df.to_json(date_format='iso', orient='split')
 
 
-
-### ---------- Update Colony Table--------- ###
+### ---------- Update User Table--------- ###
 @app.callback(
     [Output('user_table', "columns"), 
     Output('user_table', 'data'),
@@ -58,16 +55,16 @@ def update_usertable(n_clicks, upload_contents, session_user_data):
     
     # load user input from csv file selected by user
     if upload_contents is not None:
-        df = user_data.upload_csv(upload_contents)
+        df = user_data_mod.upload_csv(upload_contents)
     else:  
         if session_user_data == None:   # if new user session
             # get default dataframe
-            df = user_data.original_user_data
+            df = user_data_mod.original_user_data
         else:                           # load user input from current session
             # get data from user datatable
             df = pd.read_json(session_user_data, orient='split')
 
-    # conver user data in dashtable format
+    # convert user data in dashtable format
     dash_cols, df, drop_dict = dashtable(df) 
 
     if n_clicks > 0: # Add rows when button is clicked
@@ -107,6 +104,7 @@ def update_output(n_clicks1, folder_path, user_data):
 
             # send user data for download
             user_data = pd.DataFrame(user_data)
+            user_data = user_data[user_data_mod.original_user_data.columns]
             user_data_export = dcc.send_data_frame(user_data.to_csv, 'user_data.csv', index = False)
 
             warning = dbc.Alert(id = 'alert_message', children = [str(warning_str)], color="warning", dismissable=True)
