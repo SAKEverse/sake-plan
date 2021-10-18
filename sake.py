@@ -52,9 +52,13 @@ def update_user_data(table_data):
     
     )
 def update_usertable(n_clicks, upload_contents, session_user_data):
+
+    # get context
+    ctx = dash.callback_context
     
     # load user input from csv file selected by user
-    if upload_contents is not None:
+    if 'upload_data.contents' in ctx.triggered[0]['prop_id']:
+
         df = user_data_mod.upload_csv(upload_contents)
     else:  
         if session_user_data == None:   # if new user session
@@ -104,7 +108,7 @@ def update_output(n_clicks1, folder_path, user_data):
 
             # send user data for download
             user_data = pd.DataFrame(user_data)
-            user_data = user_data[user_data_mod.original_user_data.columns]
+            user_data = user_data[user_data_mod.original_user_data.columns] 
             user_data_export = dcc.send_data_frame(user_data.to_csv, 'user_data.csv', index = False)
 
             warning = dbc.Alert(id = 'alert_message', children = [str(warning_str)], color="warning", dismissable=True)

@@ -8,7 +8,7 @@ layout1 =  html.Div(id = 'layout_channel', children=[
 
     dcc.Store(id='user_df', storage_type = 'session'),
 
-    # 0- alers
+    # 0- alerts
     html.Div(id = 'alert_div', children =[ # show warnings
         
     ]),
