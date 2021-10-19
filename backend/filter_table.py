@@ -267,11 +267,7 @@ def create_index_array(file_data, user_data):
     
     # check if groups were not detected
     if index_df.isnull().values.any():
-        # breakpoint()
-        # nan_cols = str(list(index_df.columns[index_df.isna().any()]))
         warning_str = 'Some conditons were not found!'
-        # index_df = index_df.replace(np.nan, 'not_found', regex=True)
-        # raise Exception('Some conditons were not detected in the following column(s): ' + nan_cols)
     
     # check if user selected time exceeds bounds
     if (index_df['start_time']<0).any() or (index_df['start_time']>index_df['file_length']).any():
@@ -322,13 +318,17 @@ def get_index_array(folder_path, user_data):
     # get all file data in dataframe
     file_data = get_file_data(folder_path, channel_structures)
     
-    # get index datframe
+    # get index dataframe
     index_df, group_columns, warning_str = create_index_array(file_data, user_data)
+
+    # drop brain regions containing drop
+    index_df = index_df[~index_df.brain_region.str.contains("drop")]
+    index_df = index_df.reset_index()
+    index_df = index_df.drop(['index'], axis = 1)
     
     return index_df, group_columns, warning_str
 
 if __name__ == '__main__':
-    
     
     # define path
     folder_path = r'C:\Users\panton01\Desktop\example_files'

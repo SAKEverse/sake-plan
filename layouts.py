@@ -64,6 +64,9 @@ layout1 =  html.Div(id = 'layout_channel', children=[
             html.Button('+', id='add_row_button', n_clicks=0,   
             ),]),
 
+    html.Div(id = 'drop_message', children =[ "Drop Channel keyword = 'drop'"]
+    ),
+
     # tree group diagram
      html.Div(id='tree_plot_div', children=[
      ]),

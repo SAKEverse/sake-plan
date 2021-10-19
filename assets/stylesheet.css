@@ -51,6 +51,10 @@
     font-size: large;
 }
 
+#drop_message {
+    text-align: center;
+  }
+
 #tree_structure{
     width: 60%;
 }
