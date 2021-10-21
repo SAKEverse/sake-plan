@@ -148,25 +148,32 @@ class GetComments:
         # create empty array for one category
         category_df = pd.DataFrame(columns = list(index_df.columns) + [self.category])
         
+        comment_suffix = 1
         for i,comment in enumerate(com_names): # iterate over comments in one category
-        
+            
             # create temporary dataframe column for one category
             temp_df = index_df.copy()
             
             # get index where comment is present
             com_idx = com_logic[:,i]
             
+            # reset index for new comment type
+            if (i % len(self.com_match)) == 0:
+                comment_suffix = 1
+                
             # get categories were comment is present  
-            temp_df.at[com_idx, self.category] = comment
+            if com_idx.any() == 1:
+                temp_df.at[com_idx, self.category] = comment + str(comment_suffix)
+                comment_suffix += 1
                
             # get times from comment
-            fs = np.array(index_df['sampling_rate'], dtype = float)                    # convert sampling rate form string to float
+            fs = np.array(index_df['sampling_rate'], dtype = float)                   # convert sampling rate form string to float
             temp_df.at[:,'start_time'] = com_time[:, i] + (user_times[i][0] * fs)     # get start time
             temp_df.at[:,'stop_time'] = com_time[:, i] + (user_times[i][1] * fs)      # get stop time
             
             # concatenate to category_df
             category_df = pd.concat([category_df, temp_df], axis=0)
-        
+
         # drop rows not containing the comments
         category_df = category_df[category_df[self.category].notna()]
         
@@ -176,6 +183,7 @@ class GetComments:
         
         return  category_df
     
+
     
     def add_comments_to_index(self, index_df):
         """
@@ -197,11 +205,11 @@ class GetComments:
         """
         # init comment warning
         com_warning = ' '
-
+        
         # if comments do not exist return index_df without changing
         if self.category is None:
             return index_df, com_warning
-                
+           
         # create empty arrays
         com_logic = np.zeros( (len(self.file_data), len(self.com_text_cols)*len(self.user_data)))
         com_time = np.zeros( (len(self.file_data), len(self.com_text_cols)*len(self.user_data)))
@@ -213,8 +221,9 @@ class GetComments:
         cntr = 0 # init counter
         for i in range(len(self.user_data)): # iterate over user comment groups in category
             
-            # get comment names
-            com_names.extend(len(self.com_text_cols) * [self.user_data.at[i, 'Assigned Group Name']])
+            # get comment names, add number for repeated comments
+            com_list = len(self.com_text_cols) * [self.user_data.at[i, 'Assigned Group Name']]
+            com_names.extend(com_list)
             
             # get user selection
             user_time = self.user_data.at[i, 'Time Selection (sec)'].split(':')
@@ -231,9 +240,9 @@ class GetComments:
             temp_com_logic, temp_com_time = self.get_index_per_comment(i)
             
             # append to arrays
-            com_logic[:,cntr:cntr+2] = temp_com_logic
-            com_time[:,cntr:cntr+2] = temp_com_time   
-            cntr += len(self.com_text_cols) 
+            com_logic[:,cntr:cntr + temp_com_logic.shape[1]] = temp_com_logic
+            com_time[:,cntr:cntr + temp_com_logic.shape[1]] = temp_com_time   
+            cntr += temp_com_logic.shape[1] 
     
         # check if at least one comment is present in each file
         if com_logic.any(axis=1).all() == False:

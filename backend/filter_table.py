@@ -27,7 +27,7 @@ def get_file_data(folder_path:str, channel_structures:dict):
     
     # get file list
     filelist = list(filter(lambda k: '.adicht' in k, os.listdir(folder_path)))
-
+    
     for i, file in enumerate(filelist): # iterate over list
     
         # initiate adi parse object      
@@ -49,7 +49,7 @@ def get_file_data(folder_path:str, channel_structures:dict):
     
     # convert file length to int
     file_data['file_length'] = file_data['file_length'].astype(np.int64)
-    
+
     return file_data
 
 
@@ -323,8 +323,7 @@ def get_index_array(folder_path, user_data):
 
     # drop brain regions containing drop
     index_df = index_df[~index_df.brain_region.str.contains("drop")]
-    index_df = index_df.reset_index()
-    index_df = index_df.drop(['index'], axis = 1)
+    index_df = index_df.reset_index().drop(['index'], axis = 1)
     
     return index_df, group_columns, warning_str
 
@@ -334,7 +333,7 @@ if __name__ == '__main__':
     folder_path = r'C:\Users\panton01\Desktop\example_files'
     
     # get user table data example
-    user_data = pd.read_csv(r'C:\Users\panton01\Desktop\user_data - Copy.csv')
+    user_data = pd.read_csv(r'C:\Users\panton01\Desktop\pydsp_analysis\user_data.csv')
     
     # convert data frame to lower case
     user_data = user_data.apply(lambda x: x.astype(str).str.lower())
