@@ -322,7 +322,8 @@ def get_index_array(folder_path, user_data):
     index_df, group_columns, warning_str = create_index_array(file_data, user_data)
 
     # drop brain regions containing drop
-    index_df = index_df[~index_df.brain_region.str.contains("drop")]
+    drop_logic = ~np.any(index_df[group_columns] == "drop", axis = 1)
+    index_df = index_df.loc[drop_logic]
     index_df = index_df.reset_index().drop(['index'], axis = 1)
     
     return index_df, group_columns, warning_str
