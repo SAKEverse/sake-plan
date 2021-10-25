@@ -1,8 +1,8 @@
 # sake-plan
 
-Organize your labchart data in [tidy format](https://r4ds.had.co.nz/tidy-data.html). 
+Quickly organize your labchart data in [tidy format](https://r4ds.had.co.nz/tidy-data.html). 
 
--> Check out our spectral analysis [toolbox](https://github.com/SAKEverse/sake-plot) :chart_with_upwards_trend:.
+-> Check out the [sake-plot toolbox](https://github.com/SAKEverse/sake-plot) :chart_with_upwards_trend: for spectral analysis of the tidy data.
 
 ---
 
