@@ -8,18 +8,6 @@ Organize your labchart data in [tidy format](https://r4ds.had.co.nz/tidy-data.ht
 
 ## How to install and run
 
-  ##### 1. Get [pipenv](https://github.com/pypa/pipenv) for virtual environment creation in Python.
-  
-    pip install pipenv
-    
-  ##### 2. Clone or download sake-plan repository.
-  
-    git clone https://github.com/SAKEverse/sake-plan
-    
-  ##### 3. Navigate to the sake-plan directory.
-  
-    cd ./Documents/Github/sake-plan
-    
-  ##### 4. Run the sake.py application to launch the app.
-  
-    pipenv run python sake.py
+1) Download and install [miniconda](https://docs.conda.io/en/latest/miniconda.html) Python distribution, if you don't already have conda installed on your computer.
+2) Clone or download [sake-plan](https://github.com/SAKEverse/sake-plan) repository.
+3) Run 'SAKE Plan' file in the sake-plan repository. First run will install the app which will take several minutes.
