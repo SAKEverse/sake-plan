@@ -1,11 +1,14 @@
-:: Check if Miniconda is present
-IF EXIST %USERPROFILE%\miniconda3\Scripts\activate.bat (
-    set conda_file=%USERPROFILE%\miniconda3
-)
-
 :: Check if Anaconda is present
 IF EXIST %USERPROFILE%\AppData\Local\Continuum\anaconda3\Scripts\activate.bat (
     set conda_file=%USERPROFILE%\AppData\Local\Continuum\anaconda3
+)
+IF EXIST %USERPROFILE%\anaconda3\Scripts\activate.bat (
+    set conda_file=%USERPROFILE%\anaconda3
+)
+
+:: Check if Miniconda is present
+IF EXIST %USERPROFILE%\miniconda3\Scripts\activate.bat (
+    set conda_file=%USERPROFILE%\miniconda3
 )
 
 :: enter conda
