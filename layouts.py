@@ -6,6 +6,14 @@ from dash import dcc, html, dash_table
 # Always present
 layout1 =  html.Div(id = 'layout_channel', children=[
 
+        
+    html.Div([ # MAIN BANNER
+        html.Img(src='/assets/sakeico.png', id = 'banner_img'),
+        html.H2(children = ['SAKEplan'], id = 'banner_text'),
+        
+    ], className='main_banner',style={'font':'Times New Roman'}),
+
+    # store session data (hidden)
     dcc.Store(id='user_df', storage_type = 'session'),
 
     # 0- alerts

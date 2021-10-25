@@ -1,4 +1,27 @@
 
+.main_banner {
+    margin: 1px 1px 1px;
+    background-color:#000000;
+    border-radius: 3px;
+    height: 80px;
+}
+
+.main_banner Img{
+    padding-top: 20px;
+    padding-left: 20px;
+    height: 50px;
+}
+
+.main_banner h2{
+    color: white;
+    padding-left: 1%;
+    margin-left: 2%;
+    padding-bottom: 1%;
+    font-size: 300%;
+    font-family: "Helvetica";
+    display: inline-block;
+}
+
 #alert_message{
     background-color: rgb(255, 235, 193);
     padding-top: 5px;
