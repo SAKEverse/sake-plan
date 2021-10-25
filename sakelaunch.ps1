@@ -19,9 +19,9 @@ if (Test-Path -Path $pipinstall)
 
 
 #$Folder = 'Miniconda3
-$doc_path = [IO.Path]::Combine('C:\', $doc_path,  'Miniconda3\Scripts\activate.bat')
+$doc_path = [IO.Path]::Combine('C:\', $HOME,  'Miniconda3\Scripts\activate.bat')
 if (Test-Path -Path $doc_path) {
-    $full_path = [IO.Path]::Combine('C:\', $doc_path,  'Miniconda3\Scripts\activate.bat')
+    $full_path = [IO.Path]::Combine('C:\', $HOME,  'Miniconda3\Scripts\activate.bat')
 } else {
     #$full_path = [IO.Path]::Combine('C:\', $doc_path,  'AppData\Local\Continuum\anaconda3\Scripts\activate.bat')
 }
