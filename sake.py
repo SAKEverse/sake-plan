@@ -69,7 +69,7 @@ def update_usertable(n_clicks, upload_contents, session_user_data):
             df = pd.read_json(session_user_data, orient='split')
 
     # convert user data in dashtable format
-    dash_cols, df, drop_dict = dashtable(df) 
+    dash_cols, df, drop_dict = dashtable(df[user_data_mod.original_user_data.columns]) 
 
     if n_clicks > 0: # Add rows when button is clicked
         df = add_row(df)
