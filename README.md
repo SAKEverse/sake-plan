@@ -6,6 +6,8 @@ Quickly organize your labchart data in [tidy format](https://r4ds.had.co.nz/tidy
 
 ---
 
+![App screenshot](example_data/interface.PNG)
+
 ## How to install and run
 
 1) Download and install [miniconda](https://docs.conda.io/en/latest/miniconda.html) Python distribution, if you don't already have conda installed on your computer.
