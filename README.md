@@ -6,7 +6,7 @@ Quickly organize your labchart data in [tidy format](https://r4ds.had.co.nz/tidy
 
 ---
 
-![Banner](example_data/interface.PNG)
+<img src="/example_data/interface.PNG" width="700">
 
 ## How to install and run
 
