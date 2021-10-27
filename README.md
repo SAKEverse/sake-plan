@@ -2,11 +2,11 @@
 
 Quickly organize your labchart data in [tidy format](https://r4ds.had.co.nz/tidy-data.html). 
 
+<img src="/example_data/interface.PNG" width="700">
+
 -> Check out the [sake-plot toolbox](https://github.com/SAKEverse/sake-plot) :chart_with_upwards_trend: for spectral analysis of the tidy data.
 
 ---
-
-<img src="/example_data/interface.PNG" width="700">
 
 ## How to install and run
 
