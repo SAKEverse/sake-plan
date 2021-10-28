@@ -25,31 +25,37 @@ def get_file_data(folder_path:str, channel_structures:dict):
 
     """
     
-    # get file list
-    filelist = list(filter(lambda k: '.adicht' in k, os.listdir(folder_path)))
-    
-    for i, file in enumerate(filelist): # iterate over list
-    
-        # initiate adi parse object      
-        adi_parse = AdiParse(os.path.join(folder_path, file), channel_structures)
+    cntr = 0
+    # walk through all folders
+    for root, dirs, files in os.walk(folder_path):
         
-        # get all file data in dataframe
-        temp_file_data = adi_parse.get_all_file_properties()
+        # get labchart file list
+        filelist = list(filter(lambda k: '.adicht' in k, files))
         
-        # add folder path
-        temp_file_data['folder_path'] = folder_path 
+        for file in filelist: # iterate over list
         
-        if i == 0:
-            file_data = temp_file_data         
-        else:  
-            file_data = file_data.append(temp_file_data, ignore_index = True)
+            # initiate adi parse object      
+            adi_parse = AdiParse(os.path.join(root, file), channel_structures)
             
-    # convert data frame to lower case
-    file_data = file_data.apply(lambda x: x.astype(str).str.lower())
-    
-    # convert file length to int
-    file_data['file_length'] = file_data['file_length'].astype(np.int64)
+            # get all file data in dataframe
+            temp_file_data = adi_parse.get_all_file_properties()
+            
+            # add folder path
+            temp_file_data['folder_path'] = folder_path 
+            
+            if cntr == 0:
+                file_data = temp_file_data         
+            else:  
+                file_data = file_data.append(temp_file_data, ignore_index = True)
 
+            cntr+=1
+                
+        # convert data frame to lower case
+        file_data = file_data.apply(lambda x: x.astype(str).str.lower())
+        
+        # convert file length to int
+        file_data['file_length'] = file_data['file_length'].astype(np.int64)
+    
     return file_data
 
 
@@ -321,11 +327,15 @@ def get_index_array(folder_path, user_data):
     # get index dataframe
     index_df, group_columns, warning_str = create_index_array(file_data, user_data)
 
-    # drop brain regions containing drop
+    # remove rows containing drop in group columns
     drop_logic = ~np.any(index_df[group_columns] == "drop", axis = 1)
     index_df = index_df.loc[drop_logic]
     index_df = index_df.reset_index().drop(['index'], axis = 1)
     
+    # check if no conditions were found
+    if len(list(index_df.columns[index_df.columns.get_loc('stop_time')+1:])) < 2:
+        warning_str = 'Warning: Only Brain region column was found!!!'
+        
     return index_df, group_columns, warning_str
 
 if __name__ == '__main__':
