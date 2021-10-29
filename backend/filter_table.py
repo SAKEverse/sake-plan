@@ -25,13 +25,14 @@ def get_file_data(folder_path:str, channel_structures:dict):
 
     """
     
+    file_data = pd.DataFrame()
     cntr = 0
     # walk through all folders
     for root, dirs, files in os.walk(folder_path):
         
         # get labchart file list
         filelist = list(filter(lambda k: '.adicht' in k, files))
-        
+
         for file in filelist: # iterate over list
         
             # initiate adi parse object      
@@ -41,20 +42,18 @@ def get_file_data(folder_path:str, channel_structures:dict):
             temp_file_data = adi_parse.get_all_file_properties()
             
             # add folder path
-            temp_file_data['folder_path'] = folder_path 
-            
-            if cntr == 0:
-                file_data = temp_file_data         
-            else:  
-                file_data = file_data.append(temp_file_data, ignore_index = True)
+            temp_file_data['folder_path'] = root 
+
+            # apppend to dataframe
+            file_data = file_data.append(temp_file_data, ignore_index = True)
 
             cntr+=1
                 
-        # convert data frame to lower case
-        file_data = file_data.apply(lambda x: x.astype(str).str.lower())
+    # convert data frame to lower case
+    file_data = file_data.apply(lambda x: x.astype(str).str.lower())
         
-        # convert file length to int
-        file_data['file_length'] = file_data['file_length'].astype(np.int64)
+    # convert file length to int
+    file_data['file_length'] = file_data['file_length'].astype(np.int64)
     
     return file_data
 
