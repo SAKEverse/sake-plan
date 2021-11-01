@@ -1,4 +1,5 @@
 ﻿Source,Search Function,Search Value,Assigned Group Name,Category,Time Selection (sec)
+channel_name,within,-,,mouse_id,all
 total_channels,number,12,bla-pfc-drop,region,all
 total_channels,number,16,drop-bla-drop-pfc,region,all
 channel_name,contains,m_,male,sex,all

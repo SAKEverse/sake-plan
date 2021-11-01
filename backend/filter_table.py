@@ -60,7 +60,7 @@ def get_file_data(folder_path:str, channel_structures:dict):
 
 def get_channel_structures(user_data):
     """
-    Get channel structure from SAKE user data
+    Get channel structure from labchart files based on user data
 
     Parameters
     ----------
@@ -72,12 +72,12 @@ def get_channel_structures(user_data):
 
     """
     
-    
+
     # define separator
     separtor = '-'
     
     # get data containing channel order
-    channel_structures = user_data[user_data['Source'] == 'total_channels']
+    channel_structures = user_data[user_data['Source'] == 'total_channels'].reset_index().drop(['index'], axis = 1)
     
     regions = {}
     for i in range(len(channel_structures)):
@@ -90,6 +90,46 @@ def get_channel_structures(user_data):
         regions.update({int(channel_structures['Search Value'][i]): region_list})
         
     return regions
+
+def add_animal_id(file_data, user_data):
+    """
+    Add animal id from channel name to labchart data
+
+    Parameters
+    ----------
+    file_data : pd.DataFrame
+    user_data : Dataframe with user data for SAKE input
+
+    Returns
+    -------
+    file_data : List with channels in order
+    user_data: Dataframe with user data for SAKE input
+
+    """
+    
+    # get data containing channel order
+    drop_idx = user_data['Category'] == 'mouse_id'
+    animal_id = user_data[drop_idx].reset_index().drop(['index'], axis = 1)
+    
+    # check if present
+    if len(animal_id) > 1:
+        raise(Exception('Only one Category with -mouse_id- is allowed!\n'))
+    if len(animal_id)  == 0:
+        raise(Exception('Category -mouse_id- is required!\n'))
+    
+    # convert to dictionary
+    ids = animal_id.loc[0].to_dict()
+    
+    # define separator
+    sep = ids['Search Value']
+    
+    # get file name
+    file_data[ids['Category']] = ''
+    for i,name in enumerate(file_data[ids['Source']]):
+        if sep in name:
+            file_data.at[i, ids['Category']] = name.split(sep)[1]
+
+    return file_data, user_data.drop(np.where(drop_idx)[0], axis = 0)
 
 
 def get_categories(user_data):
@@ -250,7 +290,7 @@ def create_index_array(file_data, user_data):
         logic_index_df = pd.concat([logic_index_df, df], axis=1)
             
     # add columns from file to data
-    add_columns = ['folder_path','file_name','file_length', 'channel_id', 'block' , 'sampling_rate', 'brain_region',]
+    add_columns = ['mouse_id','folder_path','file_name','file_length', 'channel_id', 'block' , 'sampling_rate', 'brain_region',]
     index_df = pd.concat([index_df, file_data[add_columns]], axis=1)
     
     # get time
@@ -309,23 +349,26 @@ def get_index_array(folder_path, user_data):
     # get dataframe and convert to lower case
     user_data = pd.DataFrame(user_data)
     user_data = user_data.apply(lambda x: x.astype(str).str.lower())
-        
+  
     # remove rows with missing inputs
     user_data = user_data.dropna(axis = 0)
-    
+
     # ensure group names are unique
     if len(user_data['Assigned Group Name']) != len(user_data['Assigned Group Name'].unique()):
         raise Exception('Duplicate -Assigned Group Names- were found. Please check that -Assigned Group Names- are unique')
-    
+
     # get channel order
     channel_structures = get_channel_structures(user_data)
     
     # get all file data in dataframe
     file_data = get_file_data(folder_path, channel_structures)
     
-    # get index dataframe
+    # add animal id
+    file_data, user_data = add_animal_id(file_data, user_data)
+    
+    # get index dataframe 
     index_df, group_columns, warning_str = create_index_array(file_data, user_data)
-
+    
     # remove rows containing drop in group columns
     drop_logic = ~np.any(index_df[group_columns] == "drop", axis = 1)
     index_df = index_df.loc[drop_logic]
