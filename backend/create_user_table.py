@@ -6,7 +6,7 @@ import numpy as np
 # Create dropdown column elements
 dropdown_cols = ['Source', 'Search Function']
 drop_options =[{'total_channels', 'file_name', 'channel_name', 'comment_text'},
-{'contains', 'startswith', 'endswith', 'number', 'exact_match'}] 
+{'contains', 'startswith', 'endswith', 'number', 'exact_match', 'within'}] 
 
 def dashtable(df):
     """
