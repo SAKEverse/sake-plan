@@ -14,4 +14,8 @@ Quickly organize your labchart data in [tidy format](https://r4ds.had.co.nz/tidy
 2) Clone or download [sake-plan](https://github.com/SAKEverse/sake-plan) repository.
 3) Run *SAKE Plan.lnk* file in the sake-plan repository. First run will install the app which will take several minutes.
 
+## Considerations
+
 -> Currently only works with Windows OS.
+
+-> Labchart files should contain only one block (otherwise the longest block will be selected)
