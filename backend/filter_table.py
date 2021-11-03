@@ -128,7 +128,7 @@ def add_animal_id(file_data, user_data):
     file_data['animal_id'] = ''
     for i,name in enumerate(file_data[ids['Source']]):
         if sep in name:
-            file_data.at[i, ids['Category']] = name.split(sep)[1]
+            file_data.at[i, ids['Category']] = sep + name.split(sep)[1] + sep
 
     return file_data, user_data.drop(np.where(drop_idx)[0], axis = 0)
 
@@ -377,8 +377,8 @@ def get_index_array(folder_path, user_data):
     
     # check if no conditions were found
     if len(list(index_df.columns[index_df.columns.get_loc('stop_time')+1:])) < 2:
-        warning_str = 'Warning: Only Brain region column was found!!!'
-        
+        warning_str += 'Warning: Only Brain region column was found!!!'
+           
     return index_df, group_columns, warning_str
 
 if __name__ == '__main__':
