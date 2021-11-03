@@ -108,14 +108,14 @@ def add_animal_id(file_data, user_data):
     """
     
     # get data containing channel order
-    drop_idx = user_data['Category'] == 'mouse_id'
+    drop_idx = user_data['Search Function'] == 'within'
     animal_id = user_data[drop_idx].reset_index().drop(['index'], axis = 1)
     
     # check if present
     if len(animal_id) > 1:
-        raise(Exception('Only one Category with -mouse_id- is allowed!\n'))
+        raise(Exception('Only one Search Function with -within- is allowed!\n'))
     if len(animal_id)  == 0:
-        raise(Exception('Category -mouse_id- is required!\n'))
+        raise(Exception('Search Function -within- is required!\n'))
     
     # convert to dictionary
     ids = animal_id.loc[0].to_dict()
@@ -124,7 +124,8 @@ def add_animal_id(file_data, user_data):
     sep = ids['Search Value']
     
     # get file name
-    file_data[ids['Category']] = ''
+    # ids['Category']
+    file_data['animal_id'] = ''
     for i,name in enumerate(file_data[ids['Source']]):
         if sep in name:
             file_data.at[i, ids['Category']] = name.split(sep)[1]
@@ -290,7 +291,7 @@ def create_index_array(file_data, user_data):
         logic_index_df = pd.concat([logic_index_df, df], axis=1)
             
     # add columns from file to data
-    add_columns = ['mouse_id','folder_path','file_name','file_length', 'channel_id', 'block' , 'sampling_rate', 'brain_region',]
+    add_columns = ['animal_id','folder_path','file_name','file_length', 'channel_id', 'block' , 'sampling_rate', 'brain_region',]
     index_df = pd.concat([index_df, file_data[add_columns]], axis=1)
     
     # get time

@@ -116,6 +116,8 @@ def update_output(n_clicks1, folder_path, user_data):
 
     except Exception as err:
         warning = dbc.Alert(id = 'alert_message', children = ['   ' + str(err)], color="warning", dismissable=True) #, duration = 10000
+        if len(warning) == 0:
+            warning = None
         return warning, None, None, None
 
 # Automatic browser launch
