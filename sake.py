@@ -111,13 +111,16 @@ def update_output(n_clicks1, folder_path, user_data):
             user_data = user_data[user_data_mod.original_user_data.columns] 
             user_data_export = dcc.send_data_frame(user_data.to_csv, 'user_data.csv', index = False)
 
-            warning = dbc.Alert(id = 'alert_message', children = [str(warning_str)], color="warning", dismissable=True)
+            # if warning_str set to none so that no warning is shown in sake app
+            if len(warning_str.strip()) == 0:
+                warning = None
+            else:
+                warning = dbc.Alert(id = 'alert_message', children = [str(warning_str)], color="warning", dismissable=True)
+
         return warning, fig, data, user_data_export
 
     except Exception as err:
         warning = dbc.Alert(id = 'alert_message', children = ['   ' + str(err)], color="warning", dismissable=True) #, duration = 10000
-        if len(warning) == 0:
-            warning = None
         return warning, None, None, None
 
 # Automatic browser launch
