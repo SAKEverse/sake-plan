@@ -25,8 +25,11 @@ def get_file_data(folder_path:str, channel_structures:dict):
 
     """
     
+    # make lower string and path type
+    folder_path = folder_path = os.path.normpath(folder_path.lower())
     file_data = pd.DataFrame()
     cntr = 0
+    
     # walk through all folders
     for root, dirs, files in os.walk(folder_path):
         
@@ -42,7 +45,7 @@ def get_file_data(folder_path:str, channel_structures:dict):
             temp_file_data = adi_parse.get_all_file_properties()
             
             # add folder path
-            temp_file_data['folder_path'] = root 
+            temp_file_data['folder_path'] = os.path.normpath(root)
 
             # apppend to dataframe
             file_data = file_data.append(temp_file_data, ignore_index = True)
@@ -54,6 +57,9 @@ def get_file_data(folder_path:str, channel_structures:dict):
         
     # convert file length to int
     file_data['file_length'] = file_data['file_length'].astype(np.int64)
+    
+    # make paths relative
+    file_data.folder_path = file_data.folder_path.str.replace(folder_path, '', regex=False)
     
     return file_data
 
