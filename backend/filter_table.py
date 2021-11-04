@@ -45,7 +45,7 @@ def get_file_data(folder_path:str, channel_structures:dict):
             temp_file_data = adi_parse.get_all_file_properties()
             
             # add folder path
-            temp_file_data['folder_path'] = os.path.normpath(root)
+            temp_file_data['folder_path'] = os.path.normcase(root)
 
             # apppend to dataframe
             file_data = file_data.append(temp_file_data, ignore_index = True)
@@ -60,6 +60,7 @@ def get_file_data(folder_path:str, channel_structures:dict):
     
     # make paths relative
     file_data.folder_path = file_data.folder_path.str.replace(folder_path, '', regex=False)
+    file_data.folder_path = file_data.folder_path.map(lambda x: x.lstrip('\\'))
     
     return file_data
 
