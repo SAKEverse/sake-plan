@@ -320,7 +320,7 @@ def create_index_array(file_data, user_data):
     
     # check if groups were not detected
     if index_df.isnull().values.any():
-        warning_str = 'Some conditons were not found!'
+        warning_str = 'Warning: Some conditons were not found!!'
     
     # check if user selected time exceeds bounds
     if (index_df['start_time']<0).any() or (index_df['start_time']>index_df['file_length']).any():
@@ -384,7 +384,11 @@ def get_index_array(folder_path, user_data):
     
     # check if no conditions were found
     if len(list(index_df.columns[index_df.columns.get_loc('stop_time')+1:])) < 2:
-        warning_str += 'Warning: Only Brain region column was found!!!'
+        warning_str += 'Warning: Only Brain region column was found!!'
+        
+    # check if multiple blocks are found
+    if np.sum(index_df.block.astype(int)) > 0:
+        warning_str += 'Warning: Some files contain more tha one block!!'
            
     return index_df, group_columns, warning_str
 
