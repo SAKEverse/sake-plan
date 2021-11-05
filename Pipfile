@@ -7,14 +7,14 @@ verify_ssl = true
 
 [packages]
 dash = "==2.0"
-pandas = "*"
-beartype = "*"
-pytest = "*"
-numpy = "*"
+pandas = "1.3.4"
+beartype = "0.9.0"
+pytest = "6.2.5"
+numpy = "1.21.3"
 dash-daq = "*"
-dash-bootstrap-components = "*"
-cffi = "*"
-adi-reader = "*"
+dash-bootstrap-components = "1.0.0"
+cffi = "1.15.0"
+adi-reader = "0.0.4"
 
 [requires]
-python_version = "*"
+python_version = "3.8.10"
