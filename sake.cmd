@@ -19,7 +19,7 @@ cd %USERPROFILE%\Documents\GitHub\sake-plan
 
 :: Check if pipenv has been installed
 IF NOT EXIST %conda_file%\Lib\site-packages\pipenv\__main__.py (
-    pip install pipenv
+    pip install pipenv==2021.5.29
 )
 
 IF NOT EXIST Pipfile.lock (
