@@ -332,6 +332,9 @@ def create_index_array(file_data, user_data):
     index_df = index_df.loc[drop_logic]
     index_df = index_df.reset_index().drop(['index'], axis = 1)
     index_df = index_df.dropna(axis=1, how='all')
+
+    # update group columns
+    group_columns = list(index_df.columns[index_df.columns.get_loc('stop_time')+1:]) + ['brain_region']
     
     # check if groups were not detected
     if index_df.isnull().values.any():
