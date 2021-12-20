@@ -381,6 +381,7 @@ def get_index_array(folder_path, user_data):
     drop_logic = ~np.any(index_df[group_columns] == "drop", axis = 1)
     index_df = index_df.loc[drop_logic]
     index_df = index_df.reset_index().drop(['index'], axis = 1)
+    index_df = index_df.dropna(axis=1, how='all')
     
     # check if no conditions were found
     if len(list(index_df.columns[index_df.columns.get_loc('stop_time')+1:])) < 2:
