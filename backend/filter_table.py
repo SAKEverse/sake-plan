@@ -318,10 +318,6 @@ def create_index_array(file_data, user_data):
     # reset index and rename previous index to file_id
     index_df = index_df.rename_axis('file_id').reset_index()
     
-    # check if groups were not detected
-    if index_df.isnull().values.any():
-        warning_str = 'Warning: Some conditons were not found!!'
-    
     # check if user selected time exceeds bounds
     if (index_df['start_time']<0).any() or (index_df['start_time']>index_df['file_length']).any():
         raise Exception('Start time exceeds bounds.')
@@ -330,6 +326,16 @@ def create_index_array(file_data, user_data):
     
     # get added group names based on user input
     group_columns = list(index_df.columns[index_df.columns.get_loc('stop_time')+1:]) + ['brain_region']
+
+    # remove rows containing drop in group columns
+    drop_logic = ~np.any(index_df[group_columns] == "drop", axis = 1)
+    index_df = index_df.loc[drop_logic]
+    index_df = index_df.reset_index().drop(['index'], axis = 1)
+    index_df = index_df.dropna(axis=1, how='all')
+    
+    # check if groups were not detected
+    if index_df.isnull().values.any():
+        warning_str = 'Warning: Some conditons were not found!!'
     
     # put categories at end
     index_df = index_df[ [x for x in list(index_df.columns) if x not in group_columns] + group_columns]           
@@ -376,12 +382,6 @@ def get_index_array(folder_path, user_data):
     
     # get index dataframe 
     index_df, group_columns, warning_str = create_index_array(file_data, user_data)
-    
-    # remove rows containing drop in group columns
-    drop_logic = ~np.any(index_df[group_columns] == "drop", axis = 1)
-    index_df = index_df.loc[drop_logic]
-    index_df = index_df.reset_index().drop(['index'], axis = 1)
-    index_df = index_df.dropna(axis=1, how='all')
     
     # check if no conditions were found
     if len(list(index_df.columns[index_df.columns.get_loc('stop_time')+1:])) < 2:
