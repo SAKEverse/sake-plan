@@ -78,6 +78,13 @@
     text-align: center;
   }
 
+#channel_name {
+    padding-top: 15px;
+    text-align: left;
+    padding-left: 10px;
+    font-weight: bold;
+}
+
 #tree_structure{
     width: 60%;
 }

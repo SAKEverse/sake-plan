@@ -29,14 +29,30 @@ app.layout = html.Div(children = [
 
 # update user data in session
 @app.callback(
-    Output('user_df', 'data'),
+    [Output('user_df', 'data'),
+    Output('channel_name', 'children')],
     [Input('user_table', 'data'),]
    
     )
 def update_user_data(table_data):
     
     df = pd.DataFrame(table_data)
-    return df.to_json(date_format='iso', orient='split')
+
+    # get channel strings
+    channels = df[df['Source'] =='channel_name']
+    categories = list(channels['Category'].unique())
+    if 'animal_id' in categories: 
+        categories.remove('animal_id')
+    out_string='Example Channel Name: -1001-'
+    for category in categories: 
+        search_value = channels[channels['Category']==category]['Search Value']
+        out_string+= str(search_value.iloc[0])
+
+    # add brain region
+    regions = df[df['Category'] =='region']['Assigned Group Name']
+    out_string += regions.iloc[0].split('-')[0]
+
+    return df.to_json(date_format='iso', orient='split'), out_string
 
 
 ### ---------- Update User Table--------- ###

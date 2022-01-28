@@ -44,6 +44,9 @@ layout1 =  html.Div(id = 'layout_channel', children=[
 
     ]),
 
+    # generate example channel name
+    html.Div(id = 'channel_name',
+    ),
 
     # 2 create user table
     html.Div(id='user_table_div', children=[
