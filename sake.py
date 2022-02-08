@@ -49,8 +49,9 @@ def update_user_data(table_data):
         out_string+= str(search_value.iloc[0])
 
     # add brain region
-    regions = df[df['Category'] =='region']['Assigned Group Name']
-    out_string += regions.iloc[0].split('-')[0]
+    if 'region' in df['Category'].values:
+        regions = df[df['Category'] =='region']['Assigned Group Name']
+        out_string += regions.iloc[0].split('-')[0]
 
     return df.to_json(date_format='iso', orient='split'), out_string
 
@@ -76,7 +77,7 @@ def update_usertable(n_clicks, upload_contents, session_user_data):
     if 'upload_data.contents' in ctx.triggered[0]['prop_id']:
 
         df = user_data_mod.upload_csv(upload_contents)
-    else:  
+    else:
         if session_user_data == None:   # if new user session
             # get default dataframe
             df = user_data_mod.original_user_data
