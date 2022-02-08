@@ -323,12 +323,12 @@ def create_index_array(file_data, user_data):
     # separate user data based on drop
     drop_idx = user_data['Assigned Group Name'] == 'drop'
     user_data_drop = user_data[drop_idx]
-    user_data = user_data[~drop_idx]
+    user_data_use = user_data[~drop_idx]
 
     for source in sources: # iterate over user data entries  
         
         # get index logic for each assigned group
-        df = get_source_logic(file_data, user_data, source)
+        df = get_source_logic(file_data, user_data_use, source)
         logic_index_df = pd.concat([logic_index_df, df], axis=1)
         
         # get drop_logic
@@ -345,13 +345,13 @@ def create_index_array(file_data, user_data):
     index_df['stop_time'] = file_data['file_length']
 
     # get category with group names
-    groups_ids = get_categories(user_data)
+    groups_ids = get_categories(user_data_use)
     
     # convert logic to groups
     index_df = convert_logicdf_to_groups(index_df, logic_index_df, groups_ids)
     
     # get time and comments
-    obj = GetComments(file_data, user_data, 'comment_text', 'comment_time')
+    obj = GetComments(file_data, user_data_use, 'comment_text', 'comment_time')
     index_df, com_warning = obj.add_comments_to_index(index_df)
     
     # reset index and rename previous index to file_id
