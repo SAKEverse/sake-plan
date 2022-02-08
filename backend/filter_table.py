@@ -253,18 +253,43 @@ def get_source_logic(file_data, user_data, source:str):
     user_data = user_data[user_data['Source'] == source].reset_index()
     
     index = {}
-    cntr = 1
+    for i in range(len(user_data)): # iterate over user data entries       
+                
+        # find index for specified source and match string
+        idx = getattr(search_function, user_data.at[i, 'Search Function'])(file_data[source], user_data.at[i, 'Search Value'])                  
+        
+        # append to index dictionary                
+        index.update({user_data.at[i, 'Assigned Group Name']: idx})
+        
+    return pd.DataFrame(index)
+
+
+def get_drop_logic(file_data, user_data, source:str):
+    """
+    Find which unique groups exist and return as dataframe
+
+    Parameters
+    ----------
+    user_data : pd.DataFrame
+    source : str, source destination
+
+    Returns
+    -------
+    index : pd.DataFrame
+
+    """
+    
+    # get only user data form source
+    user_data = user_data[user_data['Source'] == source].reset_index()
+    
+    index = {}
     for i in range(len(user_data)): # iterate over user data entries       
                 
         # find index for specified source and match string
         idx = getattr(search_function, user_data.at[i, 'Search Function'])(file_data[source], user_data.at[i, 'Search Value'])
 
-        col_name = user_data.at[i, 'Assigned Group Name']
-        if col_name == 'drop':
-            col_name += str(cntr)
-            cntr+=1                     
-        
-        # append to index dictionary                
+        # append to index dictionary
+        col_name =  source + '_' + user_data.at[i, 'Assigned Group Name'] + str(i)
         index.update({col_name: idx})
         
     return pd.DataFrame(index)
@@ -289,19 +314,27 @@ def create_index_array(file_data, user_data):
     # create empty dataframes for storage
     logic_index_df = pd.DataFrame()
     index_df = pd.DataFrame()
+    drop_df = pd.DataFrame()
     warning_str = ''
     
     # create sources list
     sources = ['channel_name', 'file_name']
     
+    # separate user data based on drop
+    drop_idx = user_data['Assigned Group Name'] == 'drop'
+    user_data_drop = user_data[drop_idx]
+    user_data = user_data[~drop_idx]
+
     for source in sources: # iterate over user data entries  
         
-        # find which groups exist in which files in each source
+        # get index logic for each assigned group
         df = get_source_logic(file_data, user_data, source)
-        
-        # concatenate with index
         logic_index_df = pd.concat([logic_index_df, df], axis=1)
-
+        
+        # get drop_logic
+        df = get_drop_logic(file_data, user_data_drop, source)
+        drop_df = pd.concat([drop_df, df], axis=1)
+    
     # add columns from file to data
     add_columns = ['animal_id','folder_path','file_name','file_length',
      'channel_id', 'block' , 'sampling_rate', 'brain_region',]
@@ -332,13 +365,9 @@ def create_index_array(file_data, user_data):
 
     # update group columns
     group_columns = list(index_df.columns[index_df.columns.get_loc('stop_time')+1:]) + ['brain_region']
-
-    # remove rows containing drop in group columns
-    drop_cols = logic_index_df.columns[logic_index_df.columns.str.contains('drop')]
-    drop_logic = np.where(~np.any(logic_index_df[drop_cols], axis=1))[0]
-    index_df = index_df.loc[drop_logic]
-    index_df = index_df.reset_index().drop(['index'], axis = 1)
-    index_df = index_df.dropna(axis=1, how='all')
+    
+    # remove rows containing drop
+    index_df = index_df[~drop_df.any(axis=1).values]
     
     # check if groups were not detected
     if index_df.isnull().values.any():
