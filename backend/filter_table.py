@@ -223,7 +223,7 @@ def convert_logicdf_to_groups(index_df, logic_index_df, groups_ids:dict):
     for category, groups in groups_ids.items():
         
         # check if all groups present in dataframe
-        groups_present = all(elem in logic_index_df.columns  for elem in groups)
+        groups_present = all(elem in logic_index_df.columns for elem in groups)
         
         if (groups_present == True): # are all groups present in dataframe?
             if (logic_index_df[groups].any().any() == True):  # was any group detected? 
@@ -253,16 +253,21 @@ def get_source_logic(file_data, user_data, source:str):
     user_data = user_data[user_data['Source'] == source].reset_index()
     
     index = {}
+    cntr = 1
     for i in range(len(user_data)): # iterate over user data entries       
                 
         # find index for specified source and match string
-        idx = getattr(search_function, user_data.at[i, 'Search Function'])(file_data[source], user_data.at[i, 'Search Value'])                              
+        idx = getattr(search_function, user_data.at[i, 'Search Function'])(file_data[source], user_data.at[i, 'Search Value'])
+
+        col_name = user_data.at[i, 'Assigned Group Name']
+        if col_name == 'drop':
+            col_name += str(cntr)
+            cntr+=1                     
         
         # append to index dictionary                
-        index.update({user_data.at[i, 'Assigned Group Name']: idx})
+        index.update({col_name: idx})
         
     return pd.DataFrame(index)
-    
     
 
 def create_index_array(file_data, user_data):
@@ -296,15 +301,16 @@ def create_index_array(file_data, user_data):
         
         # concatenate with index
         logic_index_df = pd.concat([logic_index_df, df], axis=1)
-            
+
     # add columns from file to data
-    add_columns = ['animal_id','folder_path','file_name','file_length', 'channel_id', 'block' , 'sampling_rate', 'brain_region',]
+    add_columns = ['animal_id','folder_path','file_name','file_length',
+     'channel_id', 'block' , 'sampling_rate', 'brain_region',]
     index_df = pd.concat([index_df, file_data[add_columns]], axis=1)
     
     # get time
     index_df['start_time'] = 1
     index_df['stop_time'] = file_data['file_length']
-        
+
     # get category with group names
     groups_ids = get_categories(user_data)
     
@@ -323,18 +329,16 @@ def create_index_array(file_data, user_data):
         raise Exception('Start time exceeds bounds.')
     elif (index_df['stop_time']<0).any() or (index_df['stop_time']>index_df['file_length']).any():
         raise Exception('Stop time exceeds bounds.')
-    
-    # get added group names based on user input
-    group_columns = list(index_df.columns[index_df.columns.get_loc('stop_time')+1:]) + ['brain_region']
-
-    # remove rows containing drop in group columns
-    drop_logic = ~np.any(index_df[group_columns] == "drop", axis = 1)
-    index_df = index_df.loc[drop_logic]
-    index_df = index_df.reset_index().drop(['index'], axis = 1)
-    index_df = index_df.dropna(axis=1, how='all')
 
     # update group columns
     group_columns = list(index_df.columns[index_df.columns.get_loc('stop_time')+1:]) + ['brain_region']
+
+    # remove rows containing drop in group columns
+    drop_cols = logic_index_df.columns[logic_index_df.columns.str.contains('drop')]
+    drop_logic = np.where(~np.any(logic_index_df[drop_cols], axis=1))[0]
+    index_df = index_df.loc[drop_logic]
+    index_df = index_df.reset_index().drop(['index'], axis = 1)
+    index_df = index_df.dropna(axis=1, how='all')
     
     # check if groups were not detected
     if index_df.isnull().values.any():
