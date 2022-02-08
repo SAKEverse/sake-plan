@@ -370,9 +370,10 @@ def get_index_array(folder_path, user_data):
     # remove rows with missing inputs
     user_data = user_data.dropna(axis = 0)
 
+    warning_str = ''
     # ensure group names are unique
     if len(user_data['Assigned Group Name']) != len(user_data['Assigned Group Name'].unique()):
-        raise Exception('Duplicate -Assigned Group Names- were found. Please check that -Assigned Group Names- are unique')
+       warning_str += 'Duplicate -Assigned Group Names- were found. Please check that -Assigned Group Names- are unique'
 
     # get channel order
     channel_structures = get_channel_structures(user_data)
@@ -384,7 +385,8 @@ def get_index_array(folder_path, user_data):
     file_data, user_data = add_animal_id(file_data, user_data)
     
     # get index dataframe 
-    index_df, group_columns, warning_str = create_index_array(file_data, user_data)
+    index_df, group_columns, warning_add = create_index_array(file_data, user_data)
+    warning_str += warning_add
     
     # check if no conditions were found
     if len(list(index_df.columns[index_df.columns.get_loc('stop_time')+1:])) < 2:
