@@ -367,6 +367,8 @@ def create_index_array(file_data, user_data):
     group_columns = list(index_df.columns[index_df.columns.get_loc('stop_time')+1:]) + ['brain_region']
     
     # remove rows containing drop
+    region_drop = pd.DataFrame((index_df['brain_region'] == 'drop').rename('drop'))
+    drop_df =  pd.concat((drop_df, region_drop), axis=1)
     index_df = index_df[~drop_df.any(axis=1).values]
     
     # check if groups were not detected
