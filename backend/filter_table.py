@@ -334,7 +334,7 @@ def create_index_array(file_data, user_data):
         # get drop_logic
         df = get_drop_logic(file_data, user_data_drop, source)
         drop_df = pd.concat([drop_df, df], axis=1)
-    
+
     # add columns from file to data
     add_columns = ['animal_id','folder_path','file_name','file_length',
      'channel_id', 'block' , 'sampling_rate', 'brain_region',]
@@ -368,8 +368,9 @@ def create_index_array(file_data, user_data):
     
     # remove rows containing drop
     region_drop = pd.DataFrame((index_df['brain_region'] == 'drop').rename('drop'))
-    drop_df = pd.concat([drop_df]*int(len(region_drop)/len(drop_df))
-                        , axis=0).reset_index(drop=True)
+    if len(drop_df) != 0:
+        drop_df = pd.concat([drop_df]*int(len(region_drop)/len(drop_df))
+                            , axis=0).reset_index(drop=True)
     drop_df =  pd.concat((drop_df, region_drop), axis=1)
     index_df = index_df[~drop_df.any(axis=1).values]
     
